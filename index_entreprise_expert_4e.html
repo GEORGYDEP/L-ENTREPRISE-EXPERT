@@ -1,0 +1,2041 @@
+<!DOCTYPE html>
+<html lang="fr-BE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'Entreprise — Expert · Économie 4e</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0c0f1a; --bg2:#141a2b; --bg3:#1b2238; --card:#181f33;
+  --accent:#22d68a; --accent2:#19b874; --orange:#ff8a3d; --gold:#ffd166;
+  --blue:#4d9bff; --purple:#a78bfa; --pink:#ff5c8a;
+  --text:#eef0f6; --text2:#9aa3b8; --text3:#6b7288; --border:#2a3148;
+  --radius:16px; --success:#22d68a; --error:#ff4d6d; --warning:#ffb347;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+body::before {
+  content:''; position:fixed; inset:-20%; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 40% 35% at 15% 10%, rgba(34,214,138,.10), transparent 70%),
+    radial-gradient(ellipse 35% 40% at 85% 90%, rgba(167,139,250,.10), transparent 70%),
+    radial-gradient(ellipse 30% 30% at 70% 20%, rgba(255,209,102,.05), transparent 70%);
+  animation:aurora 24s ease-in-out infinite alternate;
+}
+@keyframes aurora { from { transform:translate3d(0,0,0) rotate(0deg); } to { transform:translate3d(3%,2%,0) rotate(3deg); } }
+button { font-family:inherit; }
+:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+
+/* ===== HEADER ===== */
+.app-header {
+  position:sticky; top:0; z-index:100; background:rgba(12,15,26,.9); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border); padding:10px 16px;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.brand { display:flex; align-items:center; gap:10px; min-width:0; }
+.brand-mark {
+  width:34px; height:34px; border-radius:10px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg, rgba(34,214,138,.25), rgba(255,209,102,.2)); border:1px solid rgba(255,209,102,.35); font-size:1.05rem;
+}
+.brand-title { font-weight:800; font-size:1rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.brand-tag {
+  font-size:.66rem; font-weight:800; color:var(--bg); background:linear-gradient(90deg,var(--gold),#ffb347);
+  padding:2px 8px; border-radius:20px; margin-left:6px; letter-spacing:.3px; vertical-align:middle;
+}
+.hud { display:flex; align-items:center; gap:8px; flex-wrap:nowrap; }
+.pill {
+  display:inline-flex; align-items:center; gap:5px; padding:5px 11px; border-radius:20px; font-weight:700;
+  font-family:'Space Mono',monospace; font-size:.78rem; border:1px solid var(--border); background:var(--bg2); white-space:nowrap;
+}
+.pill.xp { color:var(--accent); border-color:rgba(34,214,138,.35); background:rgba(34,214,138,.1); position:relative; }
+.pill.streak { color:var(--orange); border-color:rgba(255,138,61,.35); background:rgba(255,138,61,.1); }
+.pill.streak.hot { animation:flamePulse 1s ease-in-out infinite; box-shadow:0 0 14px rgba(255,138,61,.45); }
+@keyframes flamePulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.07); } }
+.pill.timer { color:var(--text2); display:none; }
+.icon-btn {
+  width:34px; height:34px; border-radius:10px; border:1px solid var(--border); background:var(--bg2); color:var(--text2);
+  cursor:pointer; font-size:.95rem; display:flex; align-items:center; justify-content:center; transition:.2s;
+}
+.icon-btn:hover { border-color:var(--accent); color:var(--text); }
+
+/* ===== XP BAR ===== */
+.xp-wrap { background:rgba(12,15,26,.85); border-bottom:1px solid var(--border); padding:6px 16px 8px; position:relative; z-index:90; }
+.xp-row { display:flex; justify-content:space-between; align-items:center; font-size:.76rem; color:var(--text2); max-width:760px; margin:0 auto 5px; }
+.xp-rank { font-weight:800; color:var(--gold); }
+.xp-track { height:7px; background:var(--bg3); border-radius:8px; overflow:hidden; max-width:760px; margin:0 auto; position:relative; border:1px solid var(--border); }
+.xp-fill {
+  height:100%; width:0%; border-radius:8px; transition:width .8s cubic-bezier(.22,1,.36,1);
+  background:linear-gradient(90deg, var(--accent), var(--gold)); position:relative;
+}
+.xp-fill::after {
+  content:''; position:absolute; inset:0; background:linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+  transform:translateX(-100%); animation:shine 2.8s ease-in-out infinite;
+}
+@keyframes shine { 0% { transform:translateX(-100%); } 60%,100% { transform:translateX(100%); } }
+.xp-ticks { position:absolute; inset:0; pointer-events:none; }
+.xp-tick { position:absolute; top:0; bottom:0; width:2px; background:rgba(12,15,26,.8); }
+
+/* ===== NAV STRIP ===== */
+.nav-strip { display:flex; justify-content:center; gap:7px; padding:10px 16px 4px; flex-wrap:wrap; position:relative; z-index:1; }
+.nav-dot {
+  width:30px; height:30px; border-radius:50%; border:2px solid var(--border); background:var(--bg2);
+  display:flex; align-items:center; justify-content:center; font-size:.7rem; font-weight:700; cursor:pointer;
+  transition:.25s; font-family:'Space Mono',monospace; color:var(--text2);
+}
+.nav-dot:hover:not(.locked) { border-color:var(--accent); transform:scale(1.12); }
+.nav-dot.active { border-color:var(--gold); background:var(--gold); color:var(--bg); box-shadow:0 0 12px rgba(255,209,102,.5); }
+.nav-dot.completed { border-color:var(--accent); background:rgba(34,214,138,.15); color:var(--accent); }
+.nav-dot.locked { opacity:.35; cursor:not-allowed; }
+
+/* ===== LAYOUT ===== */
+.main { max-width:760px; margin:0 auto; padding:16px 16px 90px; position:relative; z-index:1; }
+.screen { animation:fadeIn .4s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:13px 26px; border-radius:12px; border:none;
+  font-weight:700; font-size:.98rem; cursor:pointer; transition:.22s; text-decoration:none;
+}
+.btn-primary { background:var(--accent); color:var(--bg); box-shadow:0 6px 18px rgba(34,214,138,.25); }
+.btn-primary:hover { background:var(--accent2); transform:translateY(-2px); box-shadow:0 10px 24px rgba(34,214,138,.35); }
+.btn-gold { background:linear-gradient(90deg,var(--gold),#ffb347); color:var(--bg); box-shadow:0 6px 18px rgba(255,209,102,.25); }
+.btn-gold:hover { transform:translateY(-2px); box-shadow:0 10px 26px rgba(255,209,102,.4); }
+.btn-outline { background:transparent; border:1.5px solid var(--accent); color:var(--accent); padding:10px 20px; font-size:.9rem; }
+.btn-outline:hover { background:var(--accent); color:var(--bg); }
+.btn-outline-orange { background:transparent; border:1.5px solid var(--orange); color:var(--orange); padding:10px 20px; font-size:.9rem; }
+.btn-outline-orange:hover { background:var(--orange); color:var(--bg); }
+.btn-ghost { background:var(--bg2); border:1px solid var(--border); color:var(--text2); padding:10px 18px; font-size:.9rem; }
+.btn-ghost:hover { color:var(--text); border-color:var(--text3); }
+.btn-verify { background:var(--blue); color:#fff; padding:11px 22px; font-size:.92rem; }
+.btn-verify:hover { filter:brightness(1.1); }
+.btn-disabled { opacity:.4; cursor:not-allowed; pointer-events:none; }
+.btn-row { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px; }
+
+/* ===== WELCOME ===== */
+.hero {
+  background:linear-gradient(150deg, var(--bg2), var(--bg3)); border:1px solid var(--border); border-radius:24px;
+  padding:44px 28px 34px; text-align:center; position:relative; overflow:hidden;
+}
+.hero::before { content:''; position:absolute; top:-60%; left:50%; transform:translateX(-50%); width:520px; height:520px; background:radial-gradient(circle, rgba(255,209,102,.13), transparent 62%); pointer-events:none; }
+.hero-emoji { font-size:3.4rem; margin-bottom:10px; filter:drop-shadow(0 6px 18px rgba(255,209,102,.35)); }
+.hero-title {
+  font-size:2.5rem; font-weight:900; line-height:1.1; margin-bottom:6px;
+  background:linear-gradient(90deg, var(--accent) 0%, var(--gold) 50%, var(--accent) 100%); background-size:200% auto;
+  -webkit-background-clip:text; background-clip:text; color:transparent; animation:titleShine 5s linear infinite;
+}
+@keyframes titleShine { to { background-position:200% center; } }
+.hero-sub { color:var(--text2); font-size:1.05rem; margin-bottom:8px; }
+.hero-desc { color:var(--text3); font-size:.9rem; line-height:1.65; max-width:520px; margin:0 auto 26px; }
+.hero-stats { display:flex; justify-content:center; gap:26px; margin-bottom:26px; flex-wrap:wrap; }
+.stat { text-align:center; }
+.stat-val { font-size:1.5rem; font-weight:900; color:var(--gold); font-family:'Space Mono',monospace; }
+.stat-lbl { font-size:.74rem; color:var(--text3); }
+
+/* ===== HUB / PATH ===== */
+.hub-head { text-align:center; margin:6px 0 18px; }
+.hub-head h2 { font-size:1.5rem; font-weight:900; }
+.hub-head p { color:var(--text2); font-size:.9rem; margin-top:4px; }
+.path { position:relative; padding:6px 0; }
+.path::before { content:''; position:absolute; top:0; bottom:0; left:50%; width:3px; transform:translateX(-50%); background:repeating-linear-gradient(to bottom, var(--border) 0 10px, transparent 10px 20px); }
+.path-item { position:relative; display:flex; align-items:center; margin:0 0 14px; }
+.path-item .node {
+  position:absolute; left:50%; transform:translateX(-50%); width:42px; height:42px; border-radius:50%; border:3px solid var(--border);
+  background:var(--bg); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-weight:700; font-size:.85rem; z-index:2; color:var(--text2);
+}
+.path-item.done .node { border-color:var(--accent); color:var(--accent); background:rgba(34,214,138,.12); box-shadow:0 0 16px rgba(34,214,138,.35); }
+.path-item.next .node { border-color:var(--gold); color:var(--gold); background:rgba(255,209,102,.12); box-shadow:0 0 18px rgba(255,209,102,.5); animation:nodePulse 1.6s ease-in-out infinite; }
+@keyframes nodePulse { 0%,100% { box-shadow:0 0 12px rgba(255,209,102,.35); } 50% { box-shadow:0 0 26px rgba(255,209,102,.75); } }
+.level-card {
+  width:calc(50% - 34px); background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:14px 16px; cursor:pointer; transition:.25s; display:flex; align-items:center; gap:12px; position:relative; z-index:1;
+}
+.path-item:nth-child(odd) .level-card { margin-right:auto; }
+.path-item:nth-child(even) .level-card { margin-left:auto; }
+.level-card:hover:not(.locked) { border-color:var(--gold); transform:translateY(-2px); box-shadow:0 10px 26px rgba(0,0,0,.35); }
+.level-card.locked { opacity:.42; cursor:not-allowed; }
+.level-card.done { border-color:rgba(34,214,138,.35); background:rgba(34,214,138,.05); }
+.level-card.next { border-color:rgba(255,209,102,.5); background:rgba(255,209,102,.05); }
+.level-icon { font-size:1.6rem; flex-shrink:0; }
+.level-name { font-weight:700; font-size:.95rem; line-height:1.25; }
+.level-desc { font-size:.76rem; color:var(--text2); margin-top:2px; }
+.level-meta { font-size:.72rem; color:var(--text3); margin-top:5px; font-family:'Space Mono',monospace; }
+.level-stars { font-size:.85rem; letter-spacing:1px; }
+
+/* ===== TROPHY CASE ===== */
+.trophies { margin-top:26px; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:18px; }
+.trophies h3 { font-size:1rem; font-weight:800; margin-bottom:4px; }
+.trophies p { font-size:.8rem; color:var(--text2); margin-bottom:12px; }
+.badge-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(96px,1fr)); gap:10px; }
+.badge-tile {
+  text-align:center; padding:12px 6px 10px; border-radius:12px; background:var(--bg3); border:1px solid var(--border); transition:.3s;
+}
+.badge-tile .b-icon { font-size:1.7rem; display:block; margin-bottom:4px; }
+.badge-tile .b-name { font-size:.72rem; font-weight:700; line-height:1.2; }
+.badge-tile .b-desc { font-size:.64rem; color:var(--text3); margin-top:3px; line-height:1.25; }
+.badge-tile.locked { opacity:.45; filter:grayscale(1); }
+.badge-tile.unlocked { border-color:rgba(255,209,102,.5); background:rgba(255,209,102,.07); box-shadow:0 0 16px rgba(255,209,102,.15) inset; }
+
+/* ===== BRIEFING ===== */
+.brief-head { display:flex; align-items:center; gap:14px; margin-bottom:16px; }
+.brief-head .b-ico { font-size:2.4rem; }
+.brief-head h2 { font-size:1.4rem; font-weight:900; line-height:1.2; }
+.brief-head .b-sub { color:var(--text2); font-size:.85rem; }
+.objectives { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-bottom:16px; }
+.objectives h4 { font-size:.85rem; font-weight:800; color:var(--gold); margin-bottom:8px; }
+.objectives li { list-style:none; font-size:.88rem; padding:4px 0 4px 26px; position:relative; line-height:1.45; }
+.objectives li::before { content:'✔'; position:absolute; left:4px; color:var(--accent); font-weight:900; }
+.theory {
+  background:linear-gradient(135deg, rgba(77,155,255,.07), rgba(167,139,250,.05)); border:1px solid rgba(77,155,255,.2);
+  border-radius:var(--radius); padding:20px 22px; margin-bottom:16px;
+}
+.theory h3 { font-size:1.05rem; font-weight:800; color:var(--blue); margin-bottom:10px; }
+.theory-text { font-size:.92rem; line-height:1.7; }
+.theory-text b { color:var(--accent); }
+.theory-text p { margin:0 0 10px; }
+.theory-text p:last-child { margin:0; }
+.theory-text ul { padding-left:20px; margin:4px 0 10px; }
+.theory-text li { margin:3px 0; }
+.mini-table { width:100%; border-collapse:collapse; font-size:.85rem; margin:8px 0 10px; }
+.mini-table th { text-align:left; padding:8px 10px; background:rgba(77,155,255,.12); color:var(--text2); font-weight:700; font-size:.78rem; }
+.mini-table td { padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:top; }
+.mini-table td:first-child { font-weight:800; color:var(--gold); white-space:nowrap; }
+.example { background:rgba(255,138,61,.07); border:1px solid rgba(255,138,61,.2); border-radius:12px; padding:14px 18px; margin:14px 0 0; }
+.example .ex-t { font-weight:800; color:var(--orange); font-size:.86rem; margin-bottom:6px; }
+.example .ex-c { font-size:.88rem; line-height:1.6; }
+.bonus { background:rgba(255,209,102,.06); border:1px solid rgba(255,209,102,.3); border-radius:12px; padding:14px 18px; margin:14px 0 0; }
+.bonus .ex-t { font-weight:800; color:var(--gold); font-size:.86rem; margin-bottom:6px; }
+.bonus .ex-c { font-size:.88rem; line-height:1.6; }
+.predict { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; margin-bottom:18px; text-align:center; }
+.predict h4 { font-size:.9rem; font-weight:800; margin-bottom:4px; }
+.predict p { font-size:.8rem; color:var(--text2); margin-bottom:10px; }
+.chips { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+.chip {
+  padding:9px 16px; border-radius:20px; border:1.5px solid var(--border); background:var(--bg3); color:var(--text); font-weight:700;
+  font-size:.86rem; cursor:pointer; transition:.2s;
+}
+.chip:hover { border-color:var(--gold); }
+.chip.sel { border-color:var(--gold); background:rgba(255,209,102,.15); color:var(--gold); }
+
+/* ===== SANDBOX ===== */
+.lab { background:var(--bg2); border:1px solid rgba(167,139,250,.35); border-radius:var(--radius); padding:16px 18px; margin:14px 0 0; }
+.lab h4 { font-size:.92rem; font-weight:800; color:var(--purple); margin-bottom:4px; }
+.lab p { font-size:.8rem; color:var(--text2); margin-bottom:12px; }
+.lab-row { display:grid; grid-template-columns:150px 1fr 120px; gap:10px; align-items:center; margin:8px 0; font-size:.84rem; }
+.lab-row input[type=range] { width:100%; accent-color:var(--purple); }
+.lab-val { font-family:'Space Mono',monospace; font-weight:700; text-align:right; font-size:.8rem; }
+.lab-val.over { color:var(--error); }
+.lab-result { margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--bg3); border:1px solid var(--border); font-size:.9rem; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.lab-badge { font-weight:900; padding:6px 14px; border-radius:20px; font-size:.9rem; }
+.lab-badge.ge { background:rgba(255,77,109,.15); color:var(--error); border:1px solid rgba(255,77,109,.4); }
+.lab-badge.pe { background:rgba(77,155,255,.15); color:var(--blue); border:1px solid rgba(77,155,255,.4); }
+.lab-badge.micro { background:rgba(34,214,138,.15); color:var(--accent); border:1px solid rgba(34,214,138,.4); }
+.lab-check { display:flex; align-items:center; gap:8px; font-size:.84rem; margin-top:6px; }
+
+/* ===== QUESTION ===== */
+.q-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:.8rem; color:var(--text2); }
+.q-top b { color:var(--gold); }
+.q-dots { display:flex; gap:5px; }
+.q-dots span { width:9px; height:9px; border-radius:50%; background:var(--border); }
+.q-dots span.c { background:var(--success); }
+.q-dots span.h { background:var(--warning); }
+.q-dots span.s { background:var(--error); }
+.q-dots span.cur { background:var(--gold); box-shadow:0 0 8px var(--gold); }
+.q-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:22px; position:relative; overflow:hidden; }
+.q-type { font-size:.74rem; color:var(--text3); margin-bottom:8px; }
+.q-text { font-size:1.06rem; font-weight:600; line-height:1.55; margin-bottom:18px; }
+.q-text .data { display:inline-block; background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:10px 14px; margin:8px 0 0; font-size:.92rem; font-weight:500; line-height:1.6; }
+.q-text .data b { color:var(--gold); font-family:'Space Mono',monospace; font-size:.86rem; }
+.q-card.shake { animation:shake .45s; }
+@keyframes shake { 10%,90% { transform:translateX(-2px); } 20%,80% { transform:translateX(3px); } 30%,50%,70% { transform:translateX(-5px); } 40%,60% { transform:translateX(5px); } }
+
+/* QCM */
+.options { display:flex; flex-direction:column; gap:10px; }
+.opt {
+  background:var(--bg2); border:1.5px solid var(--border); border-radius:12px; padding:13px 16px; cursor:pointer; transition:.22s;
+  font-size:.93rem; text-align:left; display:flex; align-items:center; gap:12px; color:var(--text);
+}
+.opt:hover:not(.dis) { border-color:var(--accent); background:rgba(34,214,138,.05); transform:translateX(3px); }
+.opt .letter { width:30px; height:30px; border-radius:9px; background:var(--bg); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.8rem; color:var(--text2); flex-shrink:0; font-family:'Space Mono',monospace; }
+.opt.ok { border-color:var(--success); background:rgba(34,214,138,.1); }
+.opt.ok .letter { background:var(--success); color:var(--bg); }
+.opt.ko { border-color:var(--error); background:rgba(255,77,109,.07); }
+.opt.ko .letter { background:var(--error); color:#fff; }
+.opt.dis { pointer-events:none; }
+.opt.dis:not(.ok):not(.ko) { opacity:.55; }
+.opt.chk .letter { background:var(--gold); color:var(--bg); }
+.opt.chk { border-color:var(--gold); background:rgba(255,209,102,.08); }
+.opt.chk.ok { border-color:var(--success); background:rgba(34,214,138,.1); }
+.opt.miss { border-color:var(--warning); border-style:dashed; }
+
+/* VF */
+.vf { display:flex; gap:12px; }
+.vf-btn { flex:1; padding:15px; border-radius:12px; border:1.5px solid var(--border); background:var(--bg2); cursor:pointer; font-weight:800; font-size:1rem; color:var(--text); transition:.22s; }
+.vf-btn:hover:not(.dis) { border-color:var(--accent); transform:translateY(-2px); }
+.vf-btn.ok { border-color:var(--success); background:rgba(34,214,138,.12); color:var(--success); }
+.vf-btn.ko { border-color:var(--error); background:rgba(255,77,109,.08); color:var(--error); }
+.vf-btn.dis { pointer-events:none; }
+
+/* INPUT */
+.inp-wrap { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.inp {
+  flex:1; min-width:200px; padding:13px 16px; border-radius:12px; border:1.5px solid var(--border); background:var(--bg2); color:var(--text);
+  font-family:'Space Mono',monospace; font-size:1rem; outline:none; transition:.2s;
+}
+.inp:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(34,214,138,.12); }
+.inp.ok { border-color:var(--success); }
+.inp.ko { border-color:var(--error); }
+.inp-unit { font-weight:800; color:var(--text2); }
+.calc-preview { margin-top:8px; font-family:'Space Mono',monospace; font-size:.8rem; color:var(--purple); min-height:1.2em; }
+
+/* CLASSIFY */
+.pool-label { font-size:.78rem; color:var(--text3); margin-bottom:8px; }
+.pool { display:flex; flex-wrap:wrap; gap:8px; min-height:44px; padding:10px; border-radius:12px; background:var(--bg2); border:1px dashed var(--border); }
+.tag {
+  padding:8px 13px; border-radius:9px; font-size:.83rem; font-weight:600; cursor:pointer; transition:.2s; user-select:none;
+  background:var(--bg3); border:1.5px solid var(--border);
+}
+.tag:hover { border-color:var(--accent); transform:scale(1.04); }
+.tag.sel { border-color:var(--gold); background:rgba(255,209,102,.15); color:var(--gold); box-shadow:0 0 10px rgba(255,209,102,.3); }
+.tag.c1 { border-color:var(--success); background:rgba(34,214,138,.12); cursor:default; }
+.tag.c2 { border-color:var(--warning); background:rgba(255,179,71,.12); cursor:default; }
+.tag.x { border-color:var(--error); background:rgba(255,77,109,.1); cursor:default; }
+.tag.bounce { animation:bounceBack .5s; }
+@keyframes bounceBack { 0% { transform:scale(1.15); border-color:var(--error); } 100% { transform:scale(1); } }
+.zones { display:grid; grid-template-columns:1fr; gap:10px; margin-top:14px; }
+@media(min-width:600px) { .zones { grid-template-columns:repeat(3,1fr); } .zones.two { grid-template-columns:repeat(2,1fr); } }
+.zone { background:var(--card); border:2px dashed var(--border); border-radius:var(--radius); padding:12px; min-height:110px; transition:.25s; cursor:pointer; }
+.zone.target { border-color:var(--gold); background:rgba(255,209,102,.05); }
+.zone.z-primaire .z-t { color:#4ade80; } .zone.z-secondaire .z-t { color:var(--orange); } .zone.z-tertiaire .z-t { color:var(--blue); }
+.z-t { font-weight:800; font-size:.84rem; text-align:center; margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+.z-items { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+.z-items .tag { font-size:.78rem; padding:6px 10px; }
+.fix { font-size:.7rem; color:var(--error); display:block; font-weight:600; }
+
+/* MATCH */
+.match { display:flex; flex-direction:column; gap:10px; }
+.m-row { display:flex; align-items:center; gap:10px; }
+.m-term { flex:1; background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:12px; font-weight:700; font-size:.9rem; }
+.m-sel { flex:1.4; padding:12px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg2); color:var(--text); font-family:inherit; font-size:.86rem; cursor:pointer; }
+.m-sel.c1 { border-color:var(--success); background:rgba(34,214,138,.1); }
+.m-sel.c2 { border-color:var(--warning); background:rgba(255,179,71,.1); }
+.m-sel.x { border-color:var(--error); background:rgba(255,77,109,.08); }
+
+/* ORDER / CLOZE slots */
+.slots { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+.slot {
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; border:1.5px dashed var(--border); background:var(--card); min-height:48px; cursor:pointer; transition:.2s; font-size:.9rem;
+}
+.slot .num { width:26px; height:26px; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; font-family:'Space Mono',monospace; font-size:.75rem; color:var(--text2); flex-shrink:0; }
+.slot.filled { border-style:solid; border-color:var(--text3); }
+.slot.c1 { border-color:var(--success); background:rgba(34,214,138,.08); cursor:default; }
+.slot.c2 { border-color:var(--warning); background:rgba(255,179,71,.08); cursor:default; }
+.slot.x { border-color:var(--error); background:rgba(255,77,109,.06); cursor:default; }
+.slot .arrow { margin-left:auto; color:var(--text3); font-size:.8rem; }
+.cloze-text { font-size:.98rem; line-height:2.1; background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
+.blank {
+  display:inline-block; min-width:110px; padding:2px 10px; border-radius:8px; border:1.5px dashed var(--text3); margin:0 2px; text-align:center; cursor:pointer;
+  font-weight:700; line-height:1.6; vertical-align:middle; transition:.2s; background:var(--bg3); font-size:.9rem;
+}
+.blank.sel { border-color:var(--gold); border-style:solid; box-shadow:0 0 10px rgba(255,209,102,.35); }
+.blank.filled { border-style:solid; border-color:var(--text2); color:var(--text); }
+.blank.c1 { border-color:var(--success); color:var(--success); cursor:default; }
+.blank.c2 { border-color:var(--warning); color:var(--warning); cursor:default; }
+.blank.x { border-color:var(--error); color:var(--error); cursor:default; }
+
+/* ERRORS */
+.hunt { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:16px 18px; font-size:.95rem; line-height:1.9; }
+.seg { cursor:pointer; padding:2px 4px; border-radius:6px; transition:.2s; border-bottom:2px solid transparent; }
+.seg:hover { background:rgba(255,209,102,.1); }
+.seg.flag { background:rgba(255,209,102,.18); border-bottom-color:var(--gold); }
+.seg.c1 { background:rgba(34,214,138,.15); border-bottom-color:var(--success); cursor:default; }
+.seg.c2 { background:rgba(255,179,71,.15); border-bottom-color:var(--warning); cursor:default; }
+.seg.x { background:rgba(255,77,109,.14); border-bottom-color:var(--error); cursor:default; text-decoration:line-through; }
+.seg.fa { animation:bounceBack .5s; }
+.seg .corr { display:block; font-size:.8rem; color:var(--accent); font-style:italic; line-height:1.4; margin:2px 0 6px; }
+.hunt-count { font-size:.8rem; color:var(--text2); margin-top:10px; }
+
+/* MISSION SETUP */
+.projects { display:grid; grid-template-columns:1fr; gap:10px; margin:6px 0 16px; }
+@media(min-width:560px) { .projects { grid-template-columns:repeat(3,1fr); } }
+.proj { background:var(--bg2); border:1.5px solid var(--border); border-radius:14px; padding:16px 12px; text-align:center; cursor:pointer; transition:.22s; }
+.proj:hover { border-color:var(--gold); transform:translateY(-3px); }
+.proj.sel { border-color:var(--gold); background:rgba(255,209,102,.1); box-shadow:0 0 18px rgba(255,209,102,.25); }
+.proj .p-ico { font-size:2rem; }
+.proj .p-name { font-weight:800; font-size:.9rem; margin:6px 0 4px; }
+.proj .p-desc { font-size:.76rem; color:var(--text2); line-height:1.4; }
+
+/* FEEDBACK */
+.feedback { padding:14px 18px; border-radius:12px; margin-top:16px; font-size:.9rem; line-height:1.55; display:none; animation:fadeIn .3s; }
+.feedback.show { display:block; }
+.feedback.ok { background:rgba(34,214,138,.09); border:1px solid rgba(34,214,138,.25); color:var(--success); }
+.feedback.hint { background:rgba(255,179,71,.09); border:1px solid rgba(255,179,71,.25); color:var(--warning); }
+.feedback.ko { background:rgba(255,77,109,.07); border:1px solid rgba(255,77,109,.2); color:var(--error); }
+.feedback .fb-x { color:var(--text2); font-size:.85rem; display:block; margin-top:5px; }
+.next-wrap { text-align:center; margin-top:18px; display:none; }
+.next-wrap.show { display:block; }
+
+/* BILAN */
+.bilan { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:30px 24px; text-align:center; position:relative; overflow:hidden; }
+.bilan::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 0%, rgba(255,209,102,.12), transparent 55%); pointer-events:none; }
+.medal { font-size:4rem; display:inline-block; position:relative; margin-bottom:6px; animation:medalPop .7s cubic-bezier(.34,1.56,.64,1); }
+@keyframes medalPop { from { transform:scale(0) rotate(-20deg); opacity:0; } to { transform:scale(1) rotate(0); opacity:1; } }
+.glitter { position:absolute; inset:-30px; pointer-events:none; }
+.glitter i { position:absolute; width:6px; height:6px; border-radius:50%; background:var(--gold); animation:twinkle 1.6s ease-in-out infinite; opacity:0; box-shadow:0 0 8px var(--gold); }
+@keyframes twinkle { 0%,100% { opacity:0; transform:scale(.3); } 50% { opacity:1; transform:scale(1.2); } }
+.grade { font-size:1.7rem; font-weight:900; }
+.bilan-msg { color:var(--text2); font-size:.9rem; margin:6px 0 4px; }
+.stars-big { font-size:1.6rem; letter-spacing:4px; margin:6px 0 14px; }
+.legend { display:flex; justify-content:center; gap:18px; margin-bottom:14px; font-size:.8rem; flex-wrap:wrap; }
+.legend span { display:flex; align-items:center; gap:6px; }
+.dot { width:11px; height:11px; border-radius:50%; display:inline-block; }
+.dot.g { background:var(--success); } .dot.o { background:var(--warning); } .dot.r { background:var(--error); }
+.bilan-table { width:100%; border-collapse:collapse; margin-bottom:16px; text-align:center; font-size:.86rem; }
+.bilan-table th { padding:9px 6px; color:var(--text2); font-weight:600; border-bottom:1px solid var(--border); font-size:.76rem; }
+.bilan-table td { padding:9px 6px; border-bottom:1px solid rgba(255,255,255,.04); }
+.bilan-table td:first-child { text-align:left; }
+.pred-res { font-size:.86rem; margin:6px 0 14px; padding:10px 14px; border-radius:10px; background:var(--bg2); border:1px solid var(--border); color:var(--text2); }
+.pred-res b { color:var(--gold); }
+.xp-gain { font-family:'Space Mono',monospace; font-size:1.3rem; font-weight:700; color:var(--accent); margin:2px 0 10px; }
+
+/* FICHE */
+.fiche { margin:18px auto 0; max-width:440px; background:#fbfaf6; color:#1a1d29; border-radius:14px; padding:22px 24px; text-align:left; border:1px solid #d9d3c2; position:relative; box-shadow:0 12px 40px rgba(0,0,0,.4); }
+.fiche::before { content:''; position:absolute; top:0; left:0; right:0; height:8px; border-radius:14px 14px 0 0; background:linear-gradient(90deg,#22d68a,#ffd166,#22d68a); }
+.fiche h3 { font-size:.78rem; color:#6b7288; font-weight:700; margin-bottom:2px; }
+.fiche .f-name { font-size:1.4rem; font-weight:900; color:#0c0f1a; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.fiche table { width:100%; border-collapse:collapse; font-size:.86rem; }
+.fiche td { padding:6px 0; border-bottom:1px dashed #e2ddcd; vertical-align:top; }
+.fiche td:first-child { color:#6b7288; width:44%; }
+.fiche td:last-child { font-weight:700; color:#1a1d29; }
+.fiche .f-foot { margin-top:12px; font-size:.72rem; color:#6b7288; display:flex; justify-content:space-between; }
+.fiche .stamp { position:absolute; right:18px; bottom:44px; border:3px solid #22d68a; color:#22d68a; font-weight:900; padding:4px 10px; border-radius:8px; transform:rotate(-10deg); font-size:.8rem; opacity:.85; }
+
+/* ===== EFFECTS ===== */
+.spark { position:fixed; width:8px; height:8px; border-radius:50%; pointer-events:none; z-index:9999; animation:sparkFly .8s ease-out forwards; }
+@keyframes sparkFly { 0% { transform:translate(0,0) scale(1); opacity:1; } 100% { transform:translate(var(--dx),var(--dy)) scale(.2); opacity:0; } }
+.float-pts { position:fixed; font-family:'Space Mono',monospace; font-weight:700; color:var(--accent); font-size:1.1rem; pointer-events:none; z-index:9999; animation:floatUp 1.1s ease-out forwards; text-shadow:0 0 10px rgba(34,214,138,.7); }
+@keyframes floatUp { 0% { transform:translateY(0); opacity:1; } 100% { transform:translateY(-70px); opacity:0; } }
+.confetti { position:fixed; width:10px; height:10px; z-index:99999; pointer-events:none; top:-20px; animation:confettiFall 3s ease-out forwards; }
+@keyframes confettiFall { 0% { transform:translateY(0) rotate(0); opacity:1; } 100% { transform:translateY(105vh) rotate(760deg); opacity:0; } }
+.toast {
+  position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(120px); z-index:20000; opacity:0; visibility:hidden;
+  background:linear-gradient(135deg, #1b2238, #141a2b); border:1px solid rgba(255,209,102,.6); border-radius:14px; padding:12px 18px;
+  display:flex; align-items:center; gap:12px; box-shadow:0 10px 40px rgba(0,0,0,.5), 0 0 24px rgba(255,209,102,.25);
+  transition:transform .5s cubic-bezier(.22,1,.36,1), opacity .4s, visibility .5s; max-width:92vw; overflow:hidden;
+}
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; visibility:visible; }
+.toast::after { content:''; position:absolute; top:0; bottom:0; width:60px; background:linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent); animation:sweep 1.4s .3s ease-in-out 2; left:-80px; }
+@keyframes sweep { to { left:110%; } }
+.toast .t-ico { font-size:1.8rem; }
+.toast .t-title { font-size:.72rem; color:var(--gold); font-weight:800; }
+.toast .t-name { font-weight:800; font-size:.95rem; }
+.toast .t-desc { font-size:.76rem; color:var(--text2); }
+.rankup { position:fixed; inset:0; z-index:15000; display:none; align-items:center; justify-content:center; background:rgba(12,15,26,.82); backdrop-filter:blur(6px); }
+.rankup.show { display:flex; }
+.rankup .rays { position:absolute; width:900px; height:900px; background:conic-gradient(from 0deg, rgba(255,209,102,.18) 0 12deg, transparent 12deg 30deg); border-radius:50%; animation:spin 12s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.rankup .card { position:relative; text-align:center; background:var(--bg2); border:1px solid rgba(255,209,102,.6); border-radius:24px; padding:36px 40px; animation:medalPop .7s cubic-bezier(.34,1.56,.64,1); box-shadow:0 0 60px rgba(255,209,102,.3); }
+.rankup .r-ico { font-size:4rem; }
+.rankup .r-lbl { color:var(--gold); font-weight:800; font-size:.8rem; margin-top:6px; }
+.rankup .r-name { font-size:1.8rem; font-weight:900; margin:4px 0 14px; }
+.combo { position:fixed; top:110px; left:50%; transform:translateX(-50%) scale(.5); z-index:9998; font-weight:900; font-size:1.6rem; color:var(--orange); pointer-events:none; opacity:0; text-shadow:0 0 18px rgba(255,138,61,.8); animation:comboPop 1.3s ease-out forwards; }
+@keyframes comboPop { 0% { transform:translateX(-50%) scale(.5); opacity:0; } 20% { transform:translateX(-50%) scale(1.2); opacity:1; } 70% { transform:translateX(-50%) scale(1); opacity:1; } 100% { transform:translateX(-50%) scale(1) translateY(-30px); opacity:0; } }
+
+/* ===== MODALS ===== */
+.overlay { display:none; position:fixed; inset:0; z-index:10000; background:rgba(0,0,0,.75); backdrop-filter:blur(8px); align-items:center; justify-content:center; }
+.overlay.show { display:flex; }
+.modal { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:30px; width:92%; max-width:440px; text-align:center; box-shadow:0 0 40px rgba(0,0,0,.5); animation:slideUp .35s ease; position:relative; }
+.modal.wide { max-width:620px; max-height:85vh; overflow-y:auto; text-align:left; }
+@keyframes slideUp { from { transform:translateY(30px); opacity:0; } to { transform:none; opacity:1; } }
+.modal h2 { font-size:1.3rem; margin-bottom:4px; }
+.modal p { font-size:.85rem; color:var(--text2); margin-bottom:18px; }
+.modal input { width:100%; padding:12px 16px; border-radius:10px; border:1px solid var(--border); background:var(--bg3); color:var(--text); font-size:1rem; outline:none; margin-bottom:12px; font-family:inherit; }
+.close-x { position:absolute; top:10px; right:12px; background:none; border:none; color:var(--text2); font-size:1.5rem; cursor:pointer; }
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px) {
+  .level-card { width:calc(50% - 28px); }
+}
+@media(max-width:560px) {
+  .path::before { left:20px; }
+  .path-item .node { left:20px; width:36px; height:36px; font-size:.75rem; }
+  .level-card { width:calc(100% - 56px); margin-left:56px !important; margin-right:0 !important; }
+  .hero-title { font-size:1.9rem; }
+  .hero { padding:32px 18px 26px; }
+  .m-row { flex-direction:column; align-items:stretch; }
+  .lab-row { grid-template-columns:1fr; gap:4px; }
+  .lab-val { text-align:left; }
+  .brand-title { font-size:.9rem; }
+  .pill { font-size:.72rem; padding:4px 9px; }
+  .q-card { padding:16px; }
+  .theory { padding:16px; }
+  .legend { gap:10px; }
+}
+@media(max-width:480px) { .brand-tag { display:none; } .brand-title { display:none; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; }
+}
+@media print {
+  body * { visibility:hidden; }
+  .fiche, .fiche * { visibility:visible; }
+  .fiche { position:absolute; left:0; top:0; width:100%; box-shadow:none; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-mark">🏢</div>
+    <div class="brand-title">L'Entreprise<span class="brand-tag">Expert</span></div>
+  </div>
+  <div class="hud">
+    <span class="pill timer" id="globalTimer">⏱️ 00:00</span>
+    <span class="pill streak" id="streakPill">🔥 0</span>
+    <span class="pill xp" id="xpPill">0 XP</span>
+    <button class="icon-btn" id="soundBtn" onclick="toggleSound()" title="Sons">🔇</button>
+    <button class="icon-btn" onclick="goHub()" title="Parcours">🗺️</button>
+  </div>
+</header>
+<div class="xp-wrap">
+  <div class="xp-row"><span class="xp-rank" id="rankLabel">🎒 Stagiaire</span><span id="xpLabel">0/300 XP</span></div>
+  <div class="xp-track"><div class="xp-fill" id="xpFill"></div><div class="xp-ticks" id="xpTicks"></div></div>
+</div>
+<div class="nav-strip" id="navStrip"></div>
+
+<main class="main" id="main"></main>
+
+<!-- Rank up overlay -->
+<div class="rankup" id="rankup" onclick="closeRankUp()">
+  <div class="rays"></div>
+  <div class="card">
+    <div class="r-ico" id="ruIcon">🧑‍💼</div>
+    <div class="r-lbl">Nouveau rang débloqué</div>
+    <div class="r-name" id="ruName">Employé</div>
+    <button class="btn btn-gold" onclick="closeRankUp()">Continuer</button>
+  </div>
+</div>
+
+<!-- Badge toast -->
+<div class="toast" id="toast"><span class="t-ico" id="toastIco">🏅</span><div><div class="t-title" id="toastTitle">Badge débloqué</div><div class="t-name" id="toastName"></div><div class="t-desc" id="toastDesc"></div></div></div>
+
+<!-- Modal email -->
+<div id="emailOverlay" class="overlay">
+  <div class="modal">
+    <div style="font-size:2rem;margin-bottom:10px;">🎓</div>
+    <h2>Identification</h2>
+    <p>Entre ton adresse email scolaire pour commencer.</p>
+    <input type="email" id="emailInput" placeholder="prenom.nom@eleve.istlm.be" onkeydown="if(event.key==='Enter')validateEmail()">
+    <div id="emailError" style="color:var(--error);font-size:.82rem;margin-bottom:12px;min-height:1.2em;"></div>
+    <button id="emailBtn" class="btn btn-primary" style="width:100%;" onclick="validateEmail()">✅ Vérifier et commencer</button>
+  </div>
+</div>
+
+<!-- Modal classement -->
+<div id="lbOverlay" class="overlay" onclick="if(event.target===this)closeLB()">
+  <div class="modal wide">
+    <button class="close-x" onclick="closeLB()">✕</button>
+    <div style="display:flex;gap:8px;margin-bottom:18px;margin-top:6px;">
+      <button id="lbTabApp" onclick="switchLBTab('app')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--accent);background:var(--accent);color:#0c0f1a;font-weight:700;cursor:pointer;font-size:.85rem;">🏆 Cette application</button>
+      <button id="lbTabGlobal" onclick="switchLBTab('global')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--orange);background:transparent;color:var(--orange);font-weight:700;cursor:pointer;font-size:.85rem;">🌍 Classement général</button>
+    </div>
+    <div id="lbContent"><div style="text-align:center;padding:40px;color:var(--text2);">Chargement…</div></div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DONNÉES — Rangs, badges, projets de la mission finale
+// ============================================================
+const RANKS = [
+  { min:0,   icon:'🎒', name:'Stagiaire' },
+  { min:60,  icon:'🧑‍💼', name:'Employé' },
+  { min:130, icon:'🧮', name:'Chef comptable' },
+  { min:200, icon:'📈', name:'Directeur financier' },
+  { min:260, icon:'👑', name:'CEO' }
+];
+
+const BADGES = [
+  { id:'first',     icon:'🚀', name:'Premier pas',      desc:'Terminer la mission 1' },
+  { id:'perfect',   icon:'💎', name:'Sans faute',       desc:'Une mission réussie à 100 % du premier coup' },
+  { id:'streak5',   icon:'🔥', name:'En feu',           desc:'5 bonnes réponses d\'affilée' },
+  { id:'streak10',  icon:'⚡', name:'Inarrêtable',      desc:'10 bonnes réponses d\'affilée' },
+  { id:'tva',       icon:'🧾', name:'Expert TVA',       desc:'Numéro de TVA correct du premier coup' },
+  { id:'trieur',    icon:'🎯', name:'Trieur d\'élite',   desc:'12 entreprises classées sans erreur' },
+  { id:'detective', icon:'🕵️', name:'Détective',        desc:'Toutes les erreurs trouvées, aucune fausse alerte' },
+  { id:'lynx',      icon:'📏', name:'Œil de lynx',      desc:'Mission « Taille des sociétés » à 85 % ou plus' },
+  { id:'oracle',    icon:'🔮', name:'Oracle',           desc:'Prédire correctement son résultat' },
+  { id:'founder',   icon:'🏛️', name:'Fondateur',        desc:'Créer sa propre entreprise (mission 9)' },
+  { id:'marathon',  icon:'🏁', name:'Marathonien',      desc:'Les 9 missions terminées' },
+  { id:'legend',    icon:'👑', name:'Légende',          desc:'85 % ou plus sur l\'ensemble du parcours' }
+];
+
+const PROJECTS = {
+  choco: { icon:'🍫', name:'Chocolaterie artisanale', desc:'Tu fabriques tes propres pralines dans ton atelier et tu les vends dans ta boutique.' },
+  velo:  { icon:'🚲', name:'Atelier vélo',            desc:'Tu répares les vélos de tes clients et tu leur vends des accessoires (casques, lampes, antivols).' },
+  ferme: { icon:'🌱', name:'Ferme urbaine',           desc:'Tu cultives des légumes et des herbes aromatiques que tu livres à des restaurants.' }
+};
+
+const ZONES_SECT = [
+  { id:'primaire',   icon:'🌾', label:'Secteur primaire' },
+  { id:'secondaire', icon:'🏭', label:'Secteur secondaire' },
+  { id:'tertiaire',  icon:'💼', label:'Secteur tertiaire' }
+];
+
+// ============================================================
+// DONNÉES — Les 9 missions
+// (les QCM sont rédigés avec la bonne réponse en position 0,
+//  puis une rotation déterministe est appliquée au chargement)
+// ============================================================
+const LEVELS = [
+// ---------- 1 ----------
+{
+  title:'Identité et activités', icon:'🪪', short:'Identité',
+  desc:'Nom, siège, nationalité, biens et services, B2B et B2C',
+  objectives:[
+    'Identifier une entreprise comme une personne : nom, domicile, nationalité',
+    'Distinguer un bien d\'un service et reconnaître les 4 types d\'activités',
+    'Faire la différence entre clients particuliers (B2C) et clients professionnels (B2B)'
+  ],
+  theory:{
+    title:'Une entreprise a une identité, comme toi',
+    content:`<p>Chaque entreprise possède un <b>nom</b> (sa dénomination sociale), un <b>domicile</b> (son siège social) et une <b>nationalité</b>. Cette nationalité dépend du pays où se trouve le siège social, pas de l'origine des propriétaires : Audi Brussels, installée à Forest, est une entreprise belge même si sa maison-mère est allemande.</p>
+    <p>Un <b>bien</b> est une chose matérielle qui satisfait un besoin (un vélo, un pain). Un <b>service</b> est une prestation immatérielle (une coupe de cheveux, un abonnement internet).</p>
+    <p>On distingue 4 grands types d'activités :</p>
+    <ul>
+      <li>🏭 <b>Produire des biens</b> — Barco (écrans), Lotus (biscuits)</li>
+      <li>💼 <b>Produire des services</b> — Ethias (assurances), un cabinet d'avocats</li>
+      <li>🔄 <b>Activité mixte</b> : des services + la vente de biens — un opticien (examen de la vue + lunettes)</li>
+      <li>🛒 <b>Distribuer des biens</b> aux consommateurs — Aldi, Action</li>
+    </ul>`,
+    example:{ title:'🔍 Exemple : Lotus Bakeries (Lembeke)', content:`<b>Nom :</b> Lotus Bakeries — <b>Siège social :</b> Lembeke, Flandre-Orientale — <b>Nationalité :</b> belge — <b>Activité :</b> production de biens (biscuits, gaufres). Ses clients sont surtout des supermarchés, qui revendent ensuite aux consommateurs.` },
+    bonus:{ title:'✨ Pour aller plus loin : B2C ou B2B ?', content:`Une entreprise vend soit à des <b>particuliers</b> (B2C, <i>business to consumer</i> : Zalando, un coiffeur), soit à d'autres <b>entreprises</b> (B2B, <i>business to business</i> : un grossiste en fruits qui livre les restaurants). Beaucoup d'entreprises font les deux.` }
+  },
+  questions:[
+    { type:'qcm', pts:5, text:'Une plateforme comme Netflix ou Spotify exerce quel type d\'activité ?',
+      options:['Production de services','Production de biens','Distribution de biens aux consommateurs','Activité mixte'], correct:0,
+      hint:'Quand tu écoutes une chanson en streaming, reçois-tu un objet matériel chez toi ?',
+      explain:'Un abonnement de streaming est une prestation immatérielle : c\'est un service, même s\'il est payant et 100 % numérique.' },
+    { type:'vf', pts:4, text:'Un service est une chose matérielle que l\'on peut toucher et stocker.', correct:false,
+      explain:'C\'est la définition d\'un bien. Un service est une prestation immatérielle : on ne peut ni le stocker ni le toucher.' },
+    { type:'qcm', pts:5, text:'Un salon de coiffure coupe les cheveux de ses clients et leur vend aussi des shampooings. Son activité est :',
+      options:['Mixte : production de services et vente de biens','Uniquement une production de services','Uniquement une distribution de biens','Une production de biens'], correct:0,
+      hint:'Le salon fait deux choses différentes. Une coupe, c\'est quoi ? Un shampooing vendu, c\'est quoi ?',
+      explain:'La coupe est un service et le shampooing vendu est un bien : le salon combine les deux, c\'est une activité mixte.' },
+    { type:'qcm', pts:6, text:'Une entreprise a ses bureaux à Liège, des actionnaires français et des clients allemands. Quelle est sa nationalité ?',
+      options:['Belge, car son siège social est en Belgique','Française, à cause de ses actionnaires','Allemande, à cause de ses clients','Européenne, car elle travaille dans trois pays'], correct:0,
+      hint:'Qu\'est-ce qui détermine la nationalité d\'une entreprise : ses propriétaires, ses clients ou son domicile ?',
+      explain:'La nationalité d\'une entreprise dépend du pays de son siège social. Ici, Liège : elle est belge.' },
+    { type:'multi', pts:5, text:'Coche tout ce qui fait partie de l\'identité d\'une entreprise (comme pour une personne).',
+      options:['Sa dénomination sociale','Son siège social','Sa nationalité','Le prix de ses produits','Le nombre de ses clients'], correct:[0,1,2],
+      hint:'Pense aux trois informations que tu donnes sur toi-même : ton nom, ton adresse et… ? Les prix et les clients changent tout le temps.',
+      explain:'Nom (dénomination sociale), domicile (siège social) et nationalité : ce sont les trois éléments d\'identité. Le prix des produits ou le nombre de clients varient sans cesse, ils ne servent pas à identifier l\'entreprise.' },
+    { type:'qcm', pts:5, text:'Puratos fabrique des ingrédients (levures, chocolat) qu\'elle vend uniquement à des boulangeries et à des industries. Quel type d\'activité, et quel type de clients ?',
+      options:['Production de biens, clients B2B','Distribution de biens aux consommateurs, clients B2C','Production de services, clients B2B','Production de biens, clients B2C'], correct:0,
+      hint:'Deux questions : Puratos fabrique-t-elle quelque chose ? Et ses clients sont-ils des particuliers ou des entreprises ?',
+      explain:'Fabriquer des ingrédients = produire des biens. Vendre à des boulangeries, c\'est vendre à des entreprises : B2B, business to business.' }
+  ]
+},
+// ---------- 2 ----------
+{
+  title:'La carte d\'identité officielle', icon:'📋', short:'BCE & TVA',
+  desc:'Numéro d\'entreprise, numéro de TVA, siège social, formalités',
+  objectives:[
+    'Connaître les formalités de création : dénomination, siège, numéro d\'entreprise, numéro de TVA, compte bancaire',
+    'Lire un numéro d\'entreprise et en déduire le numéro de TVA',
+    'Savoir où vérifier les données officielles d\'une entreprise'
+  ],
+  theory:{
+    title:'Les formalités qui donnent une existence officielle',
+    content:`<p>Pour exister officiellement, une entreprise reçoit une véritable carte d'identité administrative :</p>
+    <ul>
+      <li><b>Dénomination sociale</b> : le nom officiel, inscrit dans les statuts.</li>
+      <li><b>Siège social</b> : l'adresse officielle, là où se trouvent les services administratifs (direction, comptabilité), pas forcément l'usine ou le magasin.</li>
+      <li><b>Numéro d'entreprise</b> : 10 chiffres attribués par la <b>Banque-Carrefour des Entreprises</b> (BCE), le registre officiel de toutes les entreprises belges. Il commence par 0 ou 1 et s'écrit sous la forme 0xxx.xxx.xxx.</li>
+      <li><b>Numéro de TVA</b> : le code du pays (BE) suivi du numéro d'entreprise, sans le modifier.</li>
+      <li><b>Compte bancaire professionnel</b> : séparé du compte privé, pour encaisser les clients et payer les fournisseurs.</li>
+    </ul>`,
+    example:{ title:'🔍 Exemple : la SRL Brasserie du Borinage', content:`<b>Siège social :</b> rue Grande 12, 7080 Frameries<br><b>Numéro d'entreprise :</b> 0712.345.630<br><b>Numéro de TVA :</b> BE 0712.345.630<br>Si elle ouvre un second atelier à Quaregnon, le numéro d'entreprise reste le même : le nouvel atelier reçoit seulement un <b>numéro d'unité d'établissement</b> supplémentaire.` },
+    bonus:{ title:'✨ Le savais-tu ?', content:`Les deux derniers chiffres du numéro d'entreprise ne sont pas choisis au hasard : ils sont calculés à partir des huit premiers (une clé de contrôle, obtenue par un calcul « modulo 97 »). Un logiciel comptable repère ainsi immédiatement un numéro mal recopié. Toutes les données publiques (nom, adresse, forme juridique, activités) se consultent gratuitement sur <b>kbo.bosa.be</b>, le site de la BCE.` }
+  },
+  questions:[
+    { type:'input', pts:8, kind:'text', badge:'tva',
+      text:'Extrait de la BCE : <span class="data">Techno-Mons SRL<br>Numéro d\'entreprise : <b>0765.412.350</b><br>Siège social : Mons</span><br>Écris le numéro de TVA de Techno-Mons.',
+      answer:'BE0765412350', placeholder:'BE 0xxx.xxx.xxx',
+      hint:'Le numéro de TVA reprend exactement le numéro d\'entreprise, précédé du code du pays. Quel est le code de la Belgique ?',
+      explain:'Numéro de TVA = BE + numéro d\'entreprise : BE 0765.412.350. Rien d\'autre ne change.' },
+    { type:'qcm', pts:4, text:'Lequel de ces numéros peut être un numéro d\'entreprise belge ?',
+      options:['1009.223.434','BE 45.678','0412.3456','04123456789'], correct:0,
+      hint:'Compte les chiffres. Combien en faut-il exactement ? Et par quoi peut commencer un numéro d\'entreprise ?',
+      explain:'Un numéro d\'entreprise compte exactement 10 chiffres et commence par 0 ou 1 : 1009.223.434 respecte la règle. Les autres propositions ont 5, 7 ou 11 chiffres.' },
+    { type:'vf', pts:4, text:'Une chaîne de 25 magasins possède 25 numéros d\'entreprise différents.', correct:false,
+      explain:'Une entreprise n\'a qu\'un seul numéro d\'entreprise. Chacun de ses magasins reçoit un numéro d\'unité d\'établissement, en plus.' },
+    { type:'qcm', pts:4, text:'Ta tante affirme que l\'entreprise « Fenêtres Dupuis » existe vraiment et a son siège à Ath. Comment le vérifier gratuitement et officiellement ?',
+      options:['En cherchant l\'entreprise sur le site de la BCE (Banque-Carrefour des Entreprises)','En écrivant à la Banque Centrale Européenne','En lisant les avis laissés sur Google','C\'est impossible : ces données sont confidentielles'], correct:0,
+      hint:'Quel organisme belge tient le registre officiel de toutes les entreprises ? Attention à ne pas le confondre avec une banque européenne.',
+      explain:'La Banque-Carrefour des Entreprises publie gratuitement le nom, l\'adresse du siège, la forme juridique et les activités de chaque entreprise belge. La Banque Centrale Européenne n\'a rien à voir avec ce registre.' },
+    { type:'qcm', pts:5, text:'La SRL Vélo+ a son atelier à Charleroi, un magasin à Namur et ses bureaux (direction, comptabilité) à Mons. Où se trouve son siège social ?',
+      options:['À Mons','À Charleroi','À Namur','Dans les trois villes à la fois'], correct:0,
+      hint:'Le siège social, c\'est le domicile officiel : là où l\'on administre l\'entreprise, pas là où l\'on produit ou l\'on vend.',
+      explain:'Le siège social est l\'adresse des services administratifs : Mons. L\'atelier et le magasin sont des unités d\'établissement.' },
+    { type:'qcm', pts:5, text:'Un comptable tape 0765.412.351 au lieu de 0765.412.350. Que se passe-t-il probablement dans son logiciel ?',
+      options:['Le logiciel signale un numéro invalide grâce à la clé de contrôle','Le paiement part vers une autre entreprise sans avertissement','Rien : un chiffre de différence n\'a aucune importance','Le numéro de TVA devient FR au lieu de BE'], correct:0,
+      hint:'Rappelle-toi à quoi servent les deux derniers chiffres du numéro d\'entreprise.',
+      explain:'Les deux derniers chiffres sont une clé de contrôle calculée sur les huit premiers. Si un chiffre change, la clé ne correspond plus et le logiciel détecte l\'erreur.' }
+  ]
+},
+// ---------- 3 ----------
+{
+  title:'Formes juridiques et responsabilité', icon:'⚖️', short:'Formes',
+  desc:'Entreprise individuelle, SA, SRL, SC, responsabilité limitée',
+  objectives:[
+    'Distinguer l\'entreprise individuelle de la société',
+    'Connaître la SA, la SRL et la SC, et la réforme de 2019',
+    'Comprendre la responsabilité limitée et la notion de personne morale'
+  ],
+  theory:{
+    title:'Seul ou en société ?',
+    content:`<p>👤 <b>Entreprise individuelle</b> (indépendant en personne physique) : une seule personne dirige, garde tous les bénéfices et supporte toutes les pertes. Sa responsabilité est <b>illimitée</b> : si l'entreprise ne peut pas payer ses dettes, les créanciers peuvent saisir son patrimoine privé (maison, voiture, épargne). En échange, la création est simple et peu coûteuse.</p>
+    <p>👥 <b>Société</b> (SA, SRL, SC) : une ou plusieurs personnes créent une <b>personne morale</b>, c'est-à-dire une « personne » juridique distincte des fondateurs, avec son propre nom, son propre patrimoine et ses propres dettes. Les associés ne risquent en principe que leur apport : responsabilité <b>limitée</b>.</p>
+    <table class="mini-table">
+      <tr><th>Forme</th><th>Signification</th><th>Ce qu'il faut retenir</th></tr>
+      <tr><td>SA</td><td>Société anonyme</td><td>Capital minimum de 61 500 € ; la forme des grandes entreprises, la seule couramment cotée en Bourse</td></tr>
+      <tr><td>SRL</td><td>Société à responsabilité limitée</td><td>Pas de capital minimum, mais un apport suffisant et un plan financier ; la forme la plus courante pour les PME</td></tr>
+      <tr><td>SC</td><td>Société coopérative</td><td>Au moins 3 fondateurs ; projets collectifs (coopératives agricoles, énergie citoyenne)</td></tr>
+    </table>
+    <p>⚠️ <b>Réforme du Code des sociétés et des associations (CSA, 2019)</b> : la SPRL est devenue la SRL, et une SRL ou une SA peut désormais être fondée par une seule personne.</p>`,
+    example:{ title:'🔍 Exemple : Lucas, photographe', content:`En entreprise individuelle, une dette professionnelle impayée peut lui coûter sa voiture personnelle. S'il crée « Lucas Photo SRL » avec un apport de 3 000 €, la SRL devient une personne morale : en cas de faillite, il ne perd en principe que ces 3 000 € (sauf faute grave de sa part).` },
+    bonus:null
+  },
+  questions:[
+    { type:'qcm', pts:4, text:'Sofia et Karim veulent ouvrir ensemble un food-truck et partager bénéfices et pertes. Quelle forme choisir ?',
+      options:['Une société, par exemple une SRL, pour partager résultats et responsabilité','Une entreprise individuelle au nom de Sofia uniquement','Deux entreprises individuelles obligatoirement séparées','Aucune forme ne permet de s\'associer à deux'], correct:0,
+      hint:'Ils sont deux et veulent tout partager. Quelle forme permet à plusieurs personnes de se répartir les résultats ?',
+      explain:'À plusieurs, on crée une société (entreprise sociétaire), par exemple une SRL : les associés se partagent bénéfices et pertes.' },
+    { type:'vf', pts:4, text:'Pour créer une SRL, il faut obligatoirement un capital de départ de 18 550 €.', correct:false,
+      explain:'Depuis la réforme de 2019, la SRL n\'a plus de capital minimum. Les 18 550 € étaient le minimum de l\'ancienne SPRL. Il faut aujourd\'hui un apport suffisant et un plan financier.' },
+    { type:'qcm', pts:5, text:'Thomas, électricien en entreprise individuelle, ne peut plus payer 25 000 € de dettes professionnelles. Que peuvent faire ses créanciers ?',
+      options:['Saisir ses biens personnels (maison, voiture, épargne) : sa responsabilité est illimitée','Rien : les dettes professionnelles ne concernent jamais le patrimoine privé','Saisir uniquement son matériel d\'électricien','Obliger Thomas à créer une SA'], correct:0,
+      hint:'Thomas est en entreprise individuelle : y a-t-il une séparation entre son patrimoine privé et celui de son entreprise ?',
+      explain:'En entreprise individuelle, il n\'y a pas de personne morale distincte : le patrimoine privé de Thomas répond de ses dettes professionnelles. C\'est la responsabilité illimitée.' },
+    { type:'match', pts:8, text:'Relie chaque sigle à sa signification. Attention : deux propositions ne servent à rien.',
+      options:['Société anonyme','Société à responsabilité limitée','Société coopérative','Société privée à responsabilité limitée (ancienne forme)','Société commerciale libre','Société régionale limitée'],
+      pairs:[ {term:'SA',correct:0}, {term:'SRL',correct:1}, {term:'SC',correct:2}, {term:'SPRL',correct:3} ],
+      explain:'SA = société anonyme, SRL = société à responsabilité limitée, SC = société coopérative. La SPRL (société privée à responsabilité limitée) n\'existe plus depuis 2019.' },
+    { type:'qcm', pts:5, text:'Quelle affirmation est correcte à propos d\'une SA ?',
+      options:['Elle exige un capital minimum de 61 500 € et peut être cotée en Bourse','Elle a remplacé la SPRL en 2019','Ses actionnaires risquent tout leur patrimoine personnel','Elle ne peut pas engager de personnel'], correct:0,
+      hint:'La SA est la forme des grandes entreprises. Qu\'est-ce qui la distingue de la SRL dès le départ ?',
+      explain:'La société anonyme demande un capital minimum de 61 500 € ; c\'est la forme des grandes entreprises, la seule couramment cotée en Bourse. Ses actionnaires ont une responsabilité limitée.' },
+    { type:'vf', pts:4, text:'Une société coopérative (SC) doit être fondée par au moins 3 personnes.', correct:true,
+      explain:'La SC est faite pour les projets collectifs : le Code exige au minimum 3 fondateurs. Une SRL ou une SA, elles, peuvent être créées par une seule personne.' }
+  ]
+},
+// ---------- 4 ----------
+{
+  title:'Secteurs et chaîne de valeur', icon:'🌍', short:'Secteurs',
+  desc:'Primaire, secondaire, tertiaire : du champ au consommateur',
+  objectives:[
+    'Reconnaître les trois secteurs d\'activité',
+    'Suivre une chaîne de valeur, de la matière première au consommateur',
+    'Repérer les entreprises qui relèvent de plusieurs secteurs'
+  ],
+  theory:{
+    title:'Trois secteurs, une chaîne',
+    content:`<ul>
+      <li>🌾 <b>Primaire</b> : on prélève dans la nature (agriculture, élevage, pêche, sylviculture, extraction).</li>
+      <li>🏭 <b>Secondaire</b> : on transforme des matières premières en produits finis ou semi-finis (industrie, construction, énergie).</li>
+      <li>💼 <b>Tertiaire</b> : on rend des services (commerce, transport, banques, horeca, enseignement, soins).</li>
+    </ul>
+    <p>La <b>chaîne de valeur</b> suit un produit du champ jusqu'au consommateur en traversant les trois secteurs. Une même entreprise peut relever de plusieurs secteurs : un menuisier fabrique des meubles (secondaire) et les vend dans son showroom (tertiaire).</p>`,
+    example:{ title:'🔍 Exemple : la chaîne du lait', content:`🐄 La ferme trait ses vaches → <b>primaire</b><br>🏭 La laiterie transforme le lait en yaourts → <b>secondaire</b><br>🚚 Le camion frigorifique livre le supermarché qui vend les yaourts → <b>tertiaire</b>` },
+    bonus:{ title:'✨ Pour aller plus loin', content:`En Belgique, environ 1 travailleur sur 100 travaille dans le primaire, 2 sur 10 dans le secondaire et près de 8 sur 10 dans le tertiaire : on parle d'une <b>économie de services</b>. Certains économistes ajoutent même un secteur « quaternaire » pour la recherche, l'information et les hautes technologies, mais dans ce cours on s'en tient aux trois secteurs officiels.` }
+  },
+  questions:[
+    { type:'order', pts:7, text:'Remets la chaîne du pain dans l\'ordre, de la matière première au consommateur.',
+      items:['Culture du blé dans une ferme','Meunerie : le blé devient de la farine','Boulangerie industrielle : la farine devient du pain','Supermarché : le pain est vendu aux consommateurs'],
+      explain:'Primaire (la ferme) → secondaire (la meunerie, puis la boulangerie industrielle) → tertiaire (le supermarché).' },
+    { type:'qcm', pts:4, text:'Une scierie achète des troncs d\'arbres et les découpe en planches. À quel secteur appartient-elle ?',
+      options:['Secondaire : elle transforme une matière première','Primaire : elle travaille avec des arbres','Tertiaire : elle vend des planches','Primaire et tertiaire à la fois'], correct:0,
+      hint:'La scierie ne coupe pas les arbres en forêt : elle reçoit des troncs et en fait autre chose. Ce verbe-là, c\'est lequel ?',
+      explain:'Découper des troncs en planches, c\'est transformer une matière première en produit semi-fini : secteur secondaire. Abattre les arbres en forêt (sylviculture) serait du primaire.' },
+    { type:'multi', pts:5, text:'Une boulangerie artisanale pétrit et cuit son pain, puis le vend dans sa boutique. Quels secteurs concernent son activité ?',
+      options:['Secteur primaire','Secteur secondaire','Secteur tertiaire'], correct:[1,2],
+      hint:'Deux verbes dans l\'énoncé : fabriquer et vendre. Chacun renvoie à un secteur. Cultive-t-elle le blé ?',
+      explain:'Fabriquer le pain = transformation (secondaire) ; le vendre au comptoir = commerce (tertiaire). Elle ne cultive pas le blé : pas de primaire.' },
+    { type:'order', pts:3, text:'Classe les trois secteurs du plus grand nombre de travailleurs au plus petit, en Belgique aujourd\'hui.',
+      items:['Secteur tertiaire','Secteur secondaire','Secteur primaire'],
+      explain:'Près de 8 travailleurs sur 10 sont dans les services, 2 sur 10 dans l\'industrie et la construction, et à peine 1 sur 100 dans l\'agriculture.' },
+    { type:'order', pts:7, text:'Remets la chaîne du poisson dans l\'ordre, de la mer à l\'assiette.',
+      items:['Pêche en mer du Nord','Conserverie : le poisson est mis en boîte','Grossiste : transport et stockage frigorifique','Épicerie : vente aux consommateurs'],
+      explain:'Pêcher (primaire) → mettre en conserve (secondaire) → transporter, stocker et vendre (tertiaire).' },
+    { type:'vf', pts:4, text:'Un restaurant prépare des plats en cuisine : il appartient donc au secteur secondaire.', correct:false,
+      explain:'Le restaurant vend un service (l\'horeca : accueil, préparation et service à table), il est classé dans le tertiaire. Une usine de plats préparés, elle, serait dans le secondaire.' }
+  ]
+},
+// ---------- 5 ----------
+{
+  title:'Le grand tri', icon:'🎯', short:'Grand tri',
+  desc:'22 entreprises et activités à classer, vocabulaire, intrus',
+  objectives:[
+    'Classer rapidement des entreprises et des activités, y compris les cas pièges',
+    'Maîtriser le vocabulaire des secteurs'
+  ],
+  theory:{
+    title:'La méthode en trois questions',
+    content:`<p>1️⃣ Est-ce qu'on <b>prélève dans la nature</b> (cultiver, élever, pêcher, extraire) ? → primaire.<br>
+    2️⃣ Est-ce qu'on <b>transforme</b> une matière en produit (fabriquer, construire, raffiner) ? → secondaire.<br>
+    3️⃣ Sinon, on vend, on transporte, on répare, on soigne, on conseille, on assure → tertiaire.</p>
+    <p><b>Cas pièges :</b> extraire du pétrole ou de la pierre reste du primaire, même pour une multinationale ; raffiner ce pétrole est du secondaire ; le livrer à la pompe est du tertiaire. Réparer (une voiture, un vélo, un ordinateur) est un service → tertiaire.</p>`,
+    example:{ title:'🔍 Exemples', content:`Lotus Bakeries (biscuits) → <b>secondaire</b> · un maraîcher de Wavre → <b>primaire</b> · Colruyt → <b>tertiaire</b> · Fluxys (transport de gaz par canalisations) → <b>tertiaire</b>` },
+    bonus:{ title:'📖 Vocabulaire', content:`<b>Sylviculture</b> = les forêts · <b>pisciculture</b> = les poissons · <b>horticulture</b> = le jardinage professionnel · <b>apiculture</b> = les abeilles · <b>viticulture</b> = la vigne · <b>sidérurgie</b> = le fer et l'acier · <b>extractif</b> = les mines, carrières et puits de pétrole.` }
+  },
+  questions:[
+    { type:'classify', pts:12, badge:'trieur', text:'Classe ces 12 entreprises dans le bon secteur.', zones:ZONES_SECT,
+      items:[
+        {name:'Pisciculture d\'Ardenne',zone:'primaire'}, {name:'Raffinerie de pétrole (Anvers)',zone:'secondaire'}, {name:'bpost',zone:'tertiaire'},
+        {name:'Carrière de pierre bleue (Soignies)',zone:'primaire'}, {name:'Cimenterie',zone:'secondaire'}, {name:'Ethias (assurances)',zone:'tertiaire'},
+        {name:'Laiterie (fabrication de fromage)',zone:'secondaire'}, {name:'Salon de coiffure',zone:'tertiaire'}, {name:'Élevage de porcs',zone:'primaire'},
+        {name:'Abattoir',zone:'secondaire'}, {name:'Agence immobilière',zone:'tertiaire'}, {name:'Exploitation forestière',zone:'primaire'}
+      ] },
+    { type:'classify', pts:10, text:'Classe ces 10 activités dans le bon secteur.', zones:ZONES_SECT,
+      items:[
+        {name:'Vente de vêtements',zone:'tertiaire'}, {name:'Extraction de sable',zone:'primaire'}, {name:'Fabrication et pose de châssis',zone:'secondaire'},
+        {name:'Réparation automobile',zone:'tertiaire'}, {name:'Transport de personnes',zone:'tertiaire'}, {name:'Transformation de céréales',zone:'secondaire'},
+        {name:'Extraction de pétrole',zone:'primaire'}, {name:'Vente et montage de pneus',zone:'tertiaire'}, {name:'Culture de fleurs',zone:'primaire'},
+        {name:'Fabrication de chocolat',zone:'secondaire'}
+      ] },
+    { type:'match', pts:10, text:'Relie chaque terme à sa définition. Deux définitions sont des intrus.',
+      options:['Entretien et exploitation des forêts','Production et élevage de poissons','Culture des légumes, des fleurs et des arbres','Transformation du fer et de l\'acier','Qui se rapporte à l\'extraction (minerais, pétrole, sable)','Élevage d\'abeilles et production de miel','Fabrication de verre et de cristal'],
+      pairs:[ {term:'Sylviculture',correct:0}, {term:'Pisciculture',correct:1}, {term:'Horticulture',correct:2}, {term:'Sidérurgie',correct:3}, {term:'Industrie extractive',correct:4} ],
+      explain:'Sylva = forêt, piscis = poisson, hortus = jardin, sideros = fer. L\'élevage d\'abeilles est l\'apiculture, la fabrication de verre est la verrerie.' },
+    { type:'qcm', pts:4, text:'Trouve l\'intrus : laquelle de ces activités n\'appartient pas au même secteur que les trois autres ?',
+      options:['Brasserie','Apiculture (élevage d\'abeilles)','Viticulture (culture de la vigne)','Aquaculture (élevage de moules et de poissons)'], correct:0,
+      hint:'Trois de ces activités prélèvent quelque chose dans la nature. La quatrième transforme une matière première.',
+      explain:'Apiculture, viticulture et aquaculture prélèvent dans la nature : primaire. La brasserie transforme l\'orge et le houblon en bière : secondaire.' },
+    { type:'qcm', pts:4, text:'Trouve l\'intrus : quelle entreprise n\'appartient pas au même secteur que les trois autres ?',
+      options:['Transporteur routier','Cimenterie','Verrerie','Chocolaterie industrielle'], correct:0,
+      hint:'Trois de ces entreprises fabriquent quelque chose. La quatrième rend un service.',
+      explain:'Cimenterie, verrerie et chocolaterie fabriquent des produits : secondaire. Le transporteur routier rend un service : tertiaire.' }
+  ]
+},
+// ---------- 6 ----------
+{
+  title:'La taille des sociétés', icon:'📏', short:'Taille',
+  desc:'Grande, petite ou microsociété : les 3 critères et le laboratoire',
+  objectives:[
+    'Connaître les trois critères de taille et leurs seuils',
+    'Classer une société en grande, petite ou microsociété',
+    'Comprendre pourquoi la taille change les obligations'
+  ],
+  theory:{
+    title:'Trois critères, trois catégories',
+    content:`<p>Le Code des sociétés classe les sociétés selon trois critères mesurés à la clôture de l'exercice : 👷 le <b>nombre moyen de travailleurs</b>, 💶 le <b>chiffre d'affaires annuel hors TVA</b> et 📊 le <b>total du bilan</b>.</p>
+    <table class="mini-table">
+      <tr><th>Catégorie</th><th>Seuils</th><th>Règle</th></tr>
+      <tr><td>Grande société</td><td>50 travailleurs · 11 250 000 € de chiffre d'affaires · 6 000 000 € de bilan</td><td>Cotée en Bourse, <b>ou</b> au moins <b>2 critères sur 3 dépassés</b></td></tr>
+      <tr><td>Petite société</td><td>mêmes seuils</td><td>Au maximum <b>1 critère dépassé</b></td></tr>
+      <tr><td>Microsociété</td><td>10 travailleurs · 900 000 € de chiffre d'affaires · 450 000 € de bilan</td><td>Une petite société qui ne dépasse pas plus d'<b>1 de ces seuils micro</b></td></tr>
+    </table>
+    <p>Méthode : compare chaque valeur à son seuil, compte les dépassements, puis conclus.</p>`,
+    example:{ title:'🔍 Exemple : Choco-Mons SRL', content:`12 travailleurs, chiffre d'affaires 2 100 000 €, bilan 900 000 €.<br>Seuils de la grande société : 0 dépassé → c'est une <b>petite société</b>.<br>Seuils micro : 3 dépassés (12 > 10, 2 100 000 > 900 000, 900 000 > 450 000) → ce n'est pas une microsociété.<br>Conclusion : <b>petite société</b>.` },
+    bonus:{ title:'✨ Pourquoi c\'est important ?', content:`Une <b>grande société</b> publie des comptes annuels complets et doit nommer un <b>commissaire</b> (un réviseur d'entreprises indépendant qui contrôle ses comptes). Une <b>petite société</b> peut publier des comptes abrégés ; une <b>microsociété</b>, un micro-schéma encore plus simple. Plus la société est grande, plus la transparence exigée est élevée.` },
+    sandbox:'size'
+  },
+  questions:[
+    { type:'qcm', pts:5, text:'<span class="data">Wallo-Béton SA<br>Travailleurs : <b>70</b> · Chiffre d\'affaires : <b>9 000 000 €</b> · Total du bilan : <b>7 500 000 €</b> · non cotée</span><br>Quelle est sa catégorie ?',
+      options:['Grande société','Petite société','Microsociété','Impossible à déterminer'], correct:0,
+      hint:'Compare chaque valeur à son seuil (50 travailleurs, 11 250 000 €, 6 000 000 €). Combien de critères sont dépassés ?',
+      explain:'70 > 50 travailleurs et 7 500 000 > 6 000 000 € de bilan : deux critères dépassés, c\'est une grande société, même si le chiffre d\'affaires reste sous le seuil.' },
+    { type:'qcm', pts:5, text:'<span class="data">Studio Pixel SRL<br>Travailleurs : <b>8</b> · Chiffre d\'affaires : <b>650 000 €</b> · Total du bilan : <b>500 000 €</b></span><br>Quelle est sa catégorie ?',
+      options:['Microsociété','Petite société (mais pas micro)','Grande société','Impossible à déterminer'], correct:0,
+      hint:'Compare aux seuils micro (10 travailleurs, 900 000 €, 450 000 €). Une microsociété peut dépasser un seuil au maximum.',
+      explain:'Seul le bilan dépasse son seuil micro (500 000 > 450 000). Un seul dépassement est toléré : Studio Pixel reste une microsociété.' },
+    { type:'qcm', pts:5, text:'<span class="data">Bio-Lux SRL<br>Travailleurs : <b>55</b> · Chiffre d\'affaires : <b>4 000 000 €</b> · Total du bilan : <b>2 000 000 €</b></span><br>Quelle est sa catégorie ?',
+      options:['Petite société','Grande société','Microsociété','Impossible à déterminer'], correct:0,
+      hint:'Combien de seuils de la grande société sont dépassés ? Et pourrait-elle être micro avec 55 travailleurs ?',
+      explain:'Seul le nombre de travailleurs dépasse le seuil (55 > 50) : un seul critère, donc petite société. Elle est loin des seuils micro (10 travailleurs, 900 000 €).' },
+    { type:'vf', pts:4, text:'Une société cotée en Bourse qui n\'emploie que 30 travailleurs est quand même considérée comme une grande société.', correct:true,
+      explain:'La cotation en Bourse suffit à elle seule : une société cotée est toujours une grande société, quels que soient ses chiffres.' },
+    { type:'input', pts:8, kind:'number', unit:'€',
+      text:'Mobilex SRL réalise un chiffre d\'affaires annuel hors TVA de <b>12 400 000 €</b>. De combien d\'euros dépasse-t-elle le seuil de chiffre d\'affaires des grandes sociétés ?',
+      answer:1150000, placeholder:'Tu peux taper un calcul',
+      hint:'Retrouve le seuil de chiffre d\'affaires (hors TVA) qui sépare petites et grandes sociétés, puis calcule la différence.',
+      explain:'12 400 000 − 11 250 000 = 1 150 000 €. Ce critère est dépassé ; il faudra vérifier les deux autres pour conclure.' },
+    { type:'input', pts:6, kind:'number',
+      text:'<span class="data">Fixit SA<br>Travailleurs : <b>48</b> · Chiffre d\'affaires : <b>11 300 000 €</b> · Total du bilan : <b>5 800 000 €</b></span><br>Combien de critères de la grande société sont dépassés ?',
+      answer:1, placeholder:'0, 1, 2 ou 3',
+      hint:'Compare chaque valeur à son seuil : 50 travailleurs, 11 250 000 €, 6 000 000 €. Compte uniquement les dépassements.',
+      explain:'Seul le chiffre d\'affaires dépasse son seuil (11 300 000 > 11 250 000). Un seul critère dépassé : Fixit reste une petite société.' },
+    { type:'qcm', pts:7, text:'Une société vient de dépasser deux critères sur trois. Quelle conséquence pour elle ?',
+      options:['Elle doit publier des comptes annuels complets et nommer un commissaire (réviseur d\'entreprises)','Elle est dispensée de tenir une comptabilité','Elle paie un taux de TVA plus élevé','Elle doit obligatoirement devenir une SA'], correct:0,
+      hint:'Deux critères dépassés, c\'est une grande société. Que lui impose-t-on de plus en matière de transparence ?',
+      explain:'Une grande société doit publier des comptes annuels complets et faire contrôler ses comptes par un commissaire. La TVA et la forme juridique n\'ont rien à voir avec la taille.' }
+  ]
+},
+// ---------- 7 ----------
+{
+  title:'Chasse aux erreurs', icon:'🕵️', short:'Erreurs',
+  desc:'Deux fiches d\'entreprise, cinq erreurs chacune : à toi de les débusquer',
+  objectives:[
+    'Lire une fiche d\'entreprise avec un œil critique',
+    'Repérer les affirmations fausses et savoir les corriger'
+  ],
+  theory:{
+    title:'Le réflexe du bon comptable : tout relire',
+    content:`<p>Un numéro de TVA mal copié, une forme juridique disparue ou un secteur mal classé peuvent coûter cher. Lis chaque phrase, demande-toi si elle est vraie, et <b>clique sur celles qui sont fausses</b>. Chaque fiche contient <b>5 erreurs</b>. Tu as deux essais : au premier, l'app te dit combien d'erreurs tu as trouvées ; au second, elle te montre celles qui restaient.</p>`,
+    example:{ title:'🔍 Exemple d\'erreur classique', content:`« Une microsociété doit nommer un commissaire. » → Faux : seule une grande société y est tenue.` },
+    bonus:null
+  },
+  questions:[
+    { type:'errors', pts:15, badge:'detective', text:'Fiche n° 1 : la Brasserie du Hainaut. Clique sur les 5 phrases fausses.',
+      segments:[
+        {t:'La Brasserie du Hainaut SA a été fondée en 2021 par trois associés.'},
+        {t:'Comme elle est dirigée par plusieurs personnes, il s\'agit d\'une entreprise individuelle.', err:true, fix:'À plusieurs, c\'est une entreprise sociétaire (ici une SA).'},
+        {t:'Son numéro d\'entreprise, attribué par la Banque-Carrefour des Entreprises, compte 10 chiffres.'},
+        {t:'Son numéro de TVA est donc FR 0745.622.964.', err:true, fix:'Le préfixe belge est BE : BE 0745.622.964.'},
+        {t:'Elle transforme l\'orge et le houblon en bière : elle appartient au secteur tertiaire.', err:true, fix:'Transformer des matières premières = secteur secondaire.'},
+        {t:'Elle vend ses fûts à des cafés et des restaurants : ses clients sont des particuliers (B2C).', err:true, fix:'Des cafés et des restaurants sont des entreprises : B2B.'},
+        {t:'Les trois associés ne risquent en principe que leur apport : leur responsabilité est limitée.'},
+        {t:'Son siège social se trouve là où est installée la cuve de brassage, même si les bureaux sont ailleurs.', err:true, fix:'Le siège social est l\'adresse des services administratifs, pas celle de la production.'},
+        {t:'Ses statuts et son adresse peuvent être consultés gratuitement sur le site de la BCE.'}
+      ] },
+    { type:'errors', pts:15, text:'Fiche n° 2 : Sunny Farms. Clique sur les 5 phrases fausses.',
+      segments:[
+        {t:'Sunny Farms SRL cultive des fraises à Wépion : son activité principale relève du secteur primaire.'},
+        {t:'Elle emploie 12 travailleurs, réalise un chiffre d\'affaires de 800 000 € et son bilan totalise 400 000 € : c\'est donc une grande société.', err:true, fix:'Un seul seuil micro dépassé (12 > 10 travailleurs) : c\'est une microsociété.'},
+        {t:'Sa nationalité est belge parce que sa fondatrice est née en Belgique.', err:true, fix:'Elle est belge parce que son siège social est en Belgique.'},
+        {t:'Elle fabrique aussi de la confiture avec ses fraises : cette activité relève du secteur secondaire.'},
+        {t:'Depuis la réforme de 2019, elle a dû transformer sa SRL en SPRL.', err:true, fix:'C\'est l\'inverse : la SPRL est devenue la SRL.'},
+        {t:'Comme elle est une petite société, elle peut publier des comptes annuels abrégés.'},
+        {t:'Elle vend ses fraises à des restaurants : c\'est une relation B2B.'},
+        {t:'Si la SRL fait faillite, la fondatrice devra rembourser toutes les dettes avec sa maison personnelle.', err:true, fix:'Dans une SRL, la responsabilité est limitée à l\'apport : la maison n\'est pas engagée.'},
+        {t:'Elle possède deux points de vente : elle a donc deux numéros d\'entreprise.', err:true, fix:'Un seul numéro d\'entreprise ; chaque point de vente reçoit un numéro d\'unité d\'établissement.'},
+        {t:'Son compte bancaire professionnel doit être séparé de son compte privé.'}
+      ] }
+  ]
+},
+// ---------- 8 ----------
+{
+  title:'L\'essentiel à retenir', icon:'📝', short:'Essentiel',
+  desc:'Reconstitue la synthèse du chapitre, puis trois vrai/faux éclair',
+  objectives:[
+    'Reconstituer la synthèse complète du chapitre',
+    'Vérifier tes réflexes sur les points sensibles'
+  ],
+  theory:{
+    title:'Pas de rappel cette fois',
+    content:`<p>C'est toi qui reconstruis la synthèse. Clique sur un trou, puis sur le bon mot de la banque (ou l'inverse). Attention : <b>3 mots de la banque sont des intrus</b>. Ensuite, trois affirmations éclair.</p>`,
+    example:null, bonus:null
+  },
+  questions:[
+    { type:'cloze', pts:24, text:'Complète la synthèse.',
+      parts:[
+        'Une entreprise est identifiée par sa ', 0, ' (son nom), son ', 1, ' (son domicile) et son numéro d\'entreprise, attribué par la ', 2,
+        '. Son numéro de ', 3, ' est composé du préfixe BE suivi du numéro d\'entreprise. Les entreprises produisent des ', 4, ' (choses matérielles) et/ou des ', 5,
+        ' (prestations). Le secteur ', 6, ' exploite les richesses naturelles, le secteur ', 7, ' transforme les matières premières et le secteur ', 8,
+        ' regroupe les services. Une entreprise dirigée par une seule personne est une entreprise ', 9, ' ; à plusieurs, c\'est une entreprise ', 10, ', comme la SA ou la ', 11, '.'
+      ],
+      answers:['dénomination sociale','siège social','BCE','TVA','biens','services','primaire','secondaire','tertiaire','individuelle','sociétaire','SRL'],
+      distractors:['SPRL','quaternaire','capital'],
+      explain:'Identité (dénomination sociale, siège social, BCE, TVA), production (biens, services), trois secteurs, deux modes de direction (individuelle, sociétaire) et les formes SA et SRL.' },
+    { type:'vf', pts:2, text:'Un numéro d\'entreprise belge peut commencer par le chiffre 1.', correct:true,
+      explain:'Les numéros d\'entreprise commencent par 0 ou par 1 (les plus récents). Ils comptent toujours 10 chiffres.' },
+    { type:'vf', pts:2, text:'L\'apiculture (élevage d\'abeilles) appartient au secteur secondaire.', correct:false,
+      explain:'Élever des abeilles pour produire du miel, c\'est prélever dans la nature : secteur primaire.' },
+    { type:'vf', pts:2, text:'Depuis 2019, une SRL peut être fondée par une seule personne.', correct:true,
+      explain:'La réforme du Code des sociétés (CSA 2019) permet de créer une SRL ou une SA seul, avec une responsabilité limitée à l\'apport.' }
+  ]
+},
+// ---------- 9 ----------
+{
+  title:'Mission finale : crée ton entreprise', icon:'🚀', short:'Mission',
+  desc:'Un cas complet : choisis ton projet, prends les bonnes décisions, reçois ta fiche d\'entreprise',
+  objectives:[
+    'Mobiliser toutes les notions dans un cas complet',
+    'Produire la fiche d\'identité de ta propre entreprise'
+  ],
+  theory:{
+    title:'Ton projet, tes décisions',
+    content:`<p>Tu as bientôt 18 ans, une idée et un peu d'épargne. Choisis ton projet, donne-lui un nom, puis prends les bonnes décisions : forme juridique, secteur, numéro de TVA, clients, taille… À la fin, tu recevras ta <b>fiche d'entreprise officielle</b>, à imprimer.</p>`,
+    example:null, bonus:null, setup:true
+  },
+  questions:[
+    { type:'qcm', pts:5, text:'Tu veux te lancer seul(e), garder tout le contrôle, mais sans risquer ta maison si les affaires tournent mal. Quelle forme choisis-tu ?',
+      options:['Une SRL fondée par une seule personne : responsabilité limitée à l\'apport','Une entreprise individuelle : c\'est la plus simple','Une SA : il faut de toute façon 61 500 € de capital','Une SC, mais il faudra trouver deux autres fondateurs'], correct:0,
+      hint:'Deux exigences : rester seul(e) ET protéger ton patrimoine privé. Quelle forme réunit les deux depuis 2019 ?',
+      explain:'Depuis le CSA de 2019, une seule personne peut fonder une SRL. C\'est une personne morale : ta maison n\'est pas engagée pour les dettes de la société. L\'entreprise individuelle, elle, engage ton patrimoine privé.' },
+    { type:'multi', pts:5, variants:{
+        choco:{ text:'Ton projet : tu fabriques tes pralines dans ton atelier et tu les vends dans ta boutique. Quels secteurs concernent ton activité ?',
+          options:['Secteur primaire','Secteur secondaire','Secteur tertiaire'], correct:[1,2],
+          hint:'Deux verbes : fabriquer et vendre. Chacun correspond à un secteur. Cultives-tu le cacao ?',
+          explain:'Fabriquer des pralines = transformation (secondaire) ; les vendre en boutique = commerce (tertiaire). Ton entreprise relève des deux.' },
+        velo:{ text:'Ton projet : tu répares des vélos et tu vends des accessoires. Quels secteurs concernent ton activité ?',
+          options:['Secteur primaire','Secteur secondaire','Secteur tertiaire'], correct:[2],
+          hint:'Réparer, c\'est rendre un service ; vendre des accessoires, c\'est du commerce. Fabriques-tu quelque chose ?',
+          explain:'Réparer = service, vendre des accessoires = distribution : deux activités, mais un seul secteur, le tertiaire. Tu ne fabriques rien et tu n\'extrais rien.' },
+        ferme:{ text:'Ton projet : tu cultives des légumes et des herbes que tu livres à des restaurants. Quels secteurs concernent ton activité ?',
+          options:['Secteur primaire','Secteur secondaire','Secteur tertiaire'], correct:[0],
+          hint:'Cultiver, c\'est prélever dans la nature. Livrer ta propre récolte fait-il de toi un commerçant ?',
+          explain:'Cultiver des légumes, c\'est prélever dans la nature : primaire. Livrer sa propre récolte fait partie de l\'activité agricole ; tu n\'exerces pas de commerce séparé.' }
+      } },
+    { type:'input', pts:8, kind:'text', text:'Le guichet d\'entreprise t\'attribue le numéro d\'entreprise <span class="data"><b>1012.456.702</b></span><br>Quel sera ton numéro de TVA ?',
+      answer:'BE1012456702', placeholder:'BE 1xxx.xxx.xxx',
+      hint:'Même règle que pour toutes les entreprises belges : le code du pays suivi du numéro d\'entreprise, chiffres inchangés.',
+      explain:'BE 1012.456.702. Un numéro qui commence par 1 est simplement un numéro récent : la règle ne change pas.' },
+    { type:'qcm', pts:4, variants:{
+        choco:{ text:'Tes pralines sont vendues aux passants dans ta boutique. Tes clients sont principalement…',
+          options:['Des particuliers : B2C (business to consumer)','Des entreprises : B2B (business to business)','L\'État uniquement','Personne : tu ne vends pas'], correct:0,
+          hint:'Qui entre dans ta boutique pour acheter des pralines : des familles ou des sociétés ?',
+          explain:'Les passants sont des consommateurs : relation B2C. Si tu fournissais des restaurants ou des magasins, ce serait du B2B.' },
+        velo:{ text:'Tu répares les vélos des habitants du quartier et tu leur vends des accessoires. Tes clients sont principalement…',
+          options:['Des particuliers : B2C (business to consumer)','Des entreprises : B2B (business to business)','L\'État uniquement','Personne : tu ne vends pas'], correct:0,
+          hint:'Les habitants du quartier sont-ils des entreprises ?',
+          explain:'Les habitants sont des consommateurs : relation B2C. Si tu entretenais la flotte de vélos d\'une entreprise, ce serait du B2B.' },
+        ferme:{ text:'Tu livres tes légumes à des restaurants. Tes clients sont principalement…',
+          options:['Des entreprises : B2B (business to business)','Des particuliers : B2C (business to consumer)','L\'État uniquement','Personne : tu ne vends pas'], correct:0,
+          hint:'Un restaurant, est-ce une personne privée ou une entreprise ?',
+          explain:'Un restaurant est une entreprise : relation B2B. Si tu vendais tes légumes sur un marché aux familles, ce serait du B2C.' }
+      } },
+    { type:'qcm', pts:5, text:'<span class="data">Trois ans plus tard<br>Travailleurs : <b>4</b> · Chiffre d\'affaires : <b>620 000 €</b> · Total du bilan : <b>300 000 €</b></span><br>Ta société est :',
+      options:['Une microsociété','Une petite société (mais pas micro)','Une grande société','Impossible à dire sans savoir si elle est cotée'], correct:0,
+      hint:'Compare d\'abord aux seuils micro : 10 travailleurs, 900 000 €, 450 000 €. Combien sont dépassés ?',
+      explain:'Aucun seuil micro n\'est dépassé (4 ≤ 10, 620 000 ≤ 900 000, 300 000 ≤ 450 000) : microsociété, avec le micro-schéma de comptes annuels.' },
+    { type:'input', pts:5, kind:'number', text:'Tu as 4 travailleurs. Combien peux-tu encore en engager, au maximum, sans dépasser le seuil de 10 travailleurs de la microsociété ?',
+      answer:6, placeholder:'Nombre de travailleurs',
+      hint:'Seuil moins effectif actuel.',
+      explain:'10 − 4 = 6 travailleurs supplémentaires. Au 11e, ce critère serait dépassé (mais rappelle-toi : une microsociété peut dépasser un seul critère).' },
+    { type:'vf', pts:4, text:'Ta SRL est une personne morale : elle peut signer un bail ou un contrat en son propre nom, distinct du tien.', correct:true,
+      explain:'C\'est tout l\'intérêt de la société : une personnalité juridique propre, avec son nom, son patrimoine et ses engagements.' },
+    { type:'qcm', pts:4, text:'Ton activité marche bien : tu ouvres un second point de vente à Tournai. Que se passe-t-il pour ton numéro d\'entreprise ?',
+      options:['Il reste identique ; le nouveau point de vente reçoit un numéro d\'unité d\'établissement','Tu reçois un deuxième numéro d\'entreprise','Tu dois créer une nouvelle SRL','Ton numéro de TVA change de préfixe'], correct:0,
+      hint:'Une entreprise, un numéro. Comment l\'administration distingue-t-elle alors tes deux adresses ?',
+      explain:'Le numéro d\'entreprise est unique. Chaque adresse d\'activité reçoit un numéro d\'unité d\'établissement.' }
+  ]
+}
+];
+
+// ---- Rotation déterministe des propositions de QCM (règle 3.7) ----
+const DECALAGE = [2,0,3,1, 1,3,0,2, 3,1,2,0, 0,2,1,3, 2,3,0,1];
+(function melangerPropositions(){
+  let k = 0;
+  const rot = q => {
+    if (q.type !== 'qcm' || !q.options) return;
+    const t = DECALAGE[k++ % DECALAGE.length];
+    for (let n = 0; n < t; n++) { q.options.unshift(q.options.pop()); q.correct = (q.correct + 1) % q.options.length; }
+  };
+  LEVELS.forEach(lv => lv.questions.forEach(q => {
+    if (q.variants) Object.values(q.variants).forEach(v => rot(Object.assign(v, {type:q.type})));
+    else rot(q);
+  }));
+})();
+LEVELS.forEach(lv => { lv.maxPoints = lv.questions.reduce((s,q) => s + q.pts, 0); });
+const TOTAL_XP = LEVELS.reduce((s,lv) => s + lv.maxPoints, 0);
+const TOTAL_Q  = LEVELS.reduce((s,lv) => s + lv.questions.length, 0);
+
+// ============================================================
+// ÉTAT DE L'APPLICATION
+// ============================================================
+const APP = {
+  screen:'welcome', level:null, q:0,
+  score:0, streak:0, maxStreak:0,
+  completed:new Set(), results:{}, qs:{}, predictions:{}, levelStart:{},
+  badges:new Set(), rankIdx:0, sound:false,
+  mission:{ project:null, name:'', city:'' },
+  // Tracking
+  email: localStorage.getItem('student_email') || '',
+  classe: localStorage.getItem('student_classe') || '',
+  globalTimerStart:null, globalTimerInterval:null, completedExercises:[]
+};
+
+function getQ(lv, q) {
+  const raw = LEVELS[lv].questions[q];
+  if (raw.variants) return Object.assign({}, raw, raw.variants[APP.mission.project || 'choco']);
+  return raw;
+}
+function stateOf(lv, q) {
+  const k = lv + '_' + q;
+  if (!APP.qs[k]) APP.qs[k] = { attempt:0, done:false };
+  return APP.qs[k];
+}
+function fmtNum(n) {
+  return new Intl.NumberFormat('fr-BE', { maximumFractionDigits:2 }).format(n);
+}
+function firstName() {
+  if (!APP.email) return 'toi';
+  return APP.email.split('@')[0].split(/[._-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
+// ============================================================
+// HUD : XP, rang, série, navigation
+// ============================================================
+function rankFor(score) { let r = 0; RANKS.forEach((rk, i) => { if (score >= rk.min) r = i; }); return r; }
+
+function updateHUD() {
+  document.getElementById('xpPill').textContent = APP.score + ' XP';
+  const sp = document.getElementById('streakPill');
+  sp.textContent = '🔥 ' + APP.streak;
+  sp.classList.toggle('hot', APP.streak >= 3);
+  const rk = RANKS[APP.rankIdx];
+  document.getElementById('rankLabel').textContent = rk.icon + ' ' + rk.name;
+  const next = RANKS[APP.rankIdx + 1];
+  document.getElementById('xpLabel').textContent = APP.score + '/' + TOTAL_XP + ' XP' + (next ? ' — prochain rang à ' + next.min + ' XP' : ' — rang maximum !');
+  document.getElementById('xpFill').style.width = Math.min(100, APP.score / TOTAL_XP * 100) + '%';
+  const ticks = document.getElementById('xpTicks');
+  if (!ticks.children.length) RANKS.slice(1).forEach(rk => { const t = document.createElement('div'); t.className = 'xp-tick'; t.style.left = (rk.min / TOTAL_XP * 100) + '%'; ticks.appendChild(t); });
+}
+
+function rankCheck() {
+  const r = rankFor(APP.score);
+  if (r > APP.rankIdx) {
+    APP.rankIdx = r;
+    updateHUD();
+    setTimeout(() => showRankUp(RANKS[r]), 500);
+  }
+}
+
+function isLocked(i) { return i > 0 && !APP.completed.has(i - 1); }
+
+function renderNav() {
+  const strip = document.getElementById('navStrip');
+  strip.innerHTML = '';
+  LEVELS.forEach((lv, i) => {
+    const d = document.createElement('div');
+    d.className = 'nav-dot' + (APP.completed.has(i) ? ' completed' : '') + (APP.level === i && APP.screen !== 'hub' && APP.screen !== 'welcome' ? ' active' : '') + (isLocked(i) ? ' locked' : '');
+    d.textContent = APP.completed.has(i) ? '✓' : (isLocked(i) ? '🔒' : (i + 1));
+    d.title = lv.title;
+    if (!isLocked(i)) d.onclick = () => openLevel(i);
+    strip.appendChild(d);
+  });
+}
+
+function setScreen(name) {
+  APP.screen = name;
+  renderScreen();
+  renderNav();
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function renderScreen() {
+  const m = document.getElementById('main');
+  switch (APP.screen) {
+    case 'welcome': m.innerHTML = renderWelcome(); break;
+    case 'hub': m.innerHTML = renderHub(); break;
+    case 'brief': m.innerHTML = renderBrief(APP.level); if (LEVELS[APP.level].theory.sandbox) labUpdate(); break;
+    case 'setup': m.innerHTML = renderSetup(); break;
+    case 'question': m.innerHTML = renderQuestion(APP.level, APP.q); afterRenderQuestion(); break;
+    case 'bilan': m.innerHTML = renderBilan(APP.level); break;
+  }
+  updateHUD();
+}
+
+// ============================================================
+// ACCUEIL
+// ============================================================
+function renderWelcome() {
+  return `<div class="screen">
+    <div class="hero">
+      <div class="hero-emoji">🏢</div>
+      <h1 class="hero-title">L'Entreprise</h1>
+      <p class="hero-sub">Édition Expert pour la 4<sup>e</sup> année</p>
+      <p class="hero-desc">Tu connais déjà les bases ? Cette édition va plus loin : responsabilité des associés, taille des sociétés, chaîne de valeur, chasse aux erreurs… et la création de ta propre entreprise. Chaque mission rapporte des XP, débloque des badges et te fait monter en grade.</p>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-val">${LEVELS.length}</div><div class="stat-lbl">missions</div></div>
+        <div class="stat"><div class="stat-val">${TOTAL_Q}</div><div class="stat-lbl">questions</div></div>
+        <div class="stat"><div class="stat-val">${TOTAL_XP}</div><div class="stat-lbl">XP à gagner</div></div>
+        <div class="stat"><div class="stat-val">${BADGES.length}</div><div class="stat-lbl">badges</div></div>
+      </div>
+      ${APP.email ? `<p style="font-size:.82rem;color:var(--text2);margin-bottom:14px;">📧 ${APP.email} — ${APP.classe}</p>` : ''}
+      <button class="btn btn-gold" onclick="goHub()">🚀 Commencer l'aventure</button>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="openLB('app')">🏆 Classement</button>
+        <button class="btn btn-outline-orange" onclick="openLB('global')">🌍 Général</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function goHub() { APP.level = null; setScreen('hub'); }
+
+// ============================================================
+// PARCOURS (HUB)
+// ============================================================
+function levelPct(i) {
+  const r = APP.results[i] || [];
+  return r.length ? Math.round(r.filter(x => x.status === 'correct').length / r.length * 100) : 0;
+}
+function levelXP(i) { return (APP.results[i] || []).reduce((s, x) => s + x.pts, 0); }
+function starsFor(pct) { const n = pct >= 85 ? 3 : pct >= 65 ? 2 : pct >= 45 ? 1 : 0; return '★'.repeat(n) + '☆'.repeat(3 - n); }
+
+function renderHub() {
+  const allDone = APP.completed.size === LEVELS.length;
+  let nextIdx = LEVELS.findIndex((_, i) => !APP.completed.has(i));
+  let html = `<div class="screen">`;
+  if (allDone) html += renderFinal();
+  html += `<div class="hub-head"><h2>${allDone ? 'Parcours terminé' : 'Ton parcours'}</h2><p>${allDone ? 'Tu peux revoir chaque mission ou rejouer pour améliorer ton score.' : 'Les missions se débloquent dans l\'ordre. Chaque mission terminée rapporte des XP et des étoiles.'}</p></div>`;
+  html += `<div class="path">`;
+  LEVELS.forEach((lv, i) => {
+    const done = APP.completed.has(i), locked = isLocked(i), isNext = i === nextIdx;
+    const cls = done ? 'done' : isNext ? 'next' : locked ? 'locked' : '';
+    const pct = levelPct(i);
+    html += `<div class="path-item ${cls}">
+      <div class="node">${done ? '✓' : locked ? '🔒' : (i + 1)}</div>
+      <div class="level-card ${cls}" ${locked ? '' : `onclick="openLevel(${i})"`}>
+        <div class="level-icon">${lv.icon}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="level-name">${lv.title}</div>
+          <div class="level-desc">${lv.desc}</div>
+          <div class="level-meta">${done ? `<span class="level-stars" style="color:var(--gold)">${starsFor(pct)}</span> ${levelXP(i)}/${lv.maxPoints} XP` : `${lv.questions.length} questions — ${lv.maxPoints} XP`}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  html += renderTrophies();
+  html += `</div>`;
+  return html;
+}
+
+function renderTrophies() {
+  return `<div class="trophies">
+    <h3>🏅 Vitrine à trophées — ${APP.badges.size}/${BADGES.length}</h3>
+    <p>Chaque badge récompense un exploit précis. Survole pour voir comment l'obtenir.</p>
+    <div class="badge-grid">${BADGES.map(b => `<div class="badge-tile ${APP.badges.has(b.id) ? 'unlocked' : 'locked'}" title="${b.desc}"><span class="b-icon">${APP.badges.has(b.id) ? b.icon : '❔'}</span><div class="b-name">${b.name}</div><div class="b-desc">${b.desc}</div></div>`).join('')}</div>
+  </div>`;
+}
+
+function openLevel(i) {
+  if (isLocked(i)) return;
+  APP.level = i;
+  if (APP.completed.has(i)) { setScreen('bilan'); return; }
+  if (APP.levelStart[i] !== undefined) { setScreen('question'); return; }
+  setScreen('brief');
+}
+
+// ============================================================
+// BRIEFING D'UNE MISSION
+// ============================================================
+function renderBrief(i) {
+  const lv = LEVELS[i], t = lv.theory;
+  return `<div class="screen">
+    <div class="brief-head"><div class="b-ico">${lv.icon}</div><div><h2>Mission ${i + 1} — ${lv.title}</h2><div class="b-sub">${lv.questions.length} questions · ${lv.maxPoints} XP à gagner</div></div></div>
+    <div class="objectives"><h4>🎯 À la fin de cette mission, tu sauras…</h4><ul>${lv.objectives.map(o => `<li>${o}</li>`).join('')}</ul></div>
+    <div class="theory">
+      <h3>📖 ${t.title}</h3>
+      <div class="theory-text">${t.content}</div>
+      ${t.example ? `<div class="example"><div class="ex-t">${t.example.title}</div><div class="ex-c">${t.example.content}</div></div>` : ''}
+      ${t.bonus ? `<div class="bonus"><div class="ex-t">${t.bonus.title}</div><div class="ex-c">${t.bonus.content}</div></div>` : ''}
+      ${t.sandbox === 'size' ? renderLab() : ''}
+    </div>
+    <div class="predict">
+      <h4>🔮 Ton défi personnel</h4>
+      <p>Avant de commencer : combien de questions penses-tu réussir du premier coup ?</p>
+      <div class="chips">
+        <button class="chip ${APP.predictions[i] === 'half' ? 'sel' : ''}" onclick="predict(${i},'half')">Environ la moitié 😅</button>
+        <button class="chip ${APP.predictions[i] === 'most' ? 'sel' : ''}" onclick="predict(${i},'most')">Les trois quarts 💪</button>
+        <button class="chip ${APP.predictions[i] === 'all' ? 'sel' : ''}" onclick="predict(${i},'all')">Toutes ! 🏆</button>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goHub()">← Parcours</button>
+      <button class="btn btn-gold" onclick="startLevel(${i})">${t.setup ? 'Choisir mon projet ➜' : 'C\'est parti ➜'}</button>
+    </div>
+  </div>`;
+}
+
+function predict(i, v) { APP.predictions[i] = v; renderScreen(); }
+
+function startLevel(i) {
+  if (!APP.predictions[i]) APP.predictions[i] = 'none';
+  if (APP.levelStart[i] === undefined) { APP.levelStart[i] = Date.now(); startExerciseTimer(i); }
+  APP.q = 0;
+  if (LEVELS[i].theory.setup && !APP.mission.project) { setScreen('setup'); return; }
+  setScreen('question');
+}
+
+// ---- Laboratoire de la taille des sociétés ----
+function renderLab() {
+  return `<div class="lab">
+    <h4>🧪 Laboratoire : teste des combinaisons</h4>
+    <p>Déplace les curseurs et observe comment la catégorie change. Les valeurs en rouge dépassent un seuil de la grande société.</p>
+    <div class="lab-row"><span>👷 Travailleurs</span><input type="range" id="labW" min="0" max="100" value="20" oninput="labUpdate()"><span class="lab-val" id="labWv"></span></div>
+    <div class="lab-row"><span>💶 Chiffre d'affaires</span><input type="range" id="labC" min="0" max="15000000" step="50000" value="3000000" oninput="labUpdate()"><span class="lab-val" id="labCv"></span></div>
+    <div class="lab-row"><span>📊 Total du bilan</span><input type="range" id="labB" min="0" max="8000000" step="50000" value="1500000" oninput="labUpdate()"><span class="lab-val" id="labBv"></span></div>
+    <label class="lab-check"><input type="checkbox" id="labQ" onchange="labUpdate()"> Cotée en Bourse</label>
+    <div class="lab-result"><span id="labTxt"></span><span class="lab-badge" id="labBadge"></span></div>
+  </div>`;
+}
+function labUpdate() {
+  const w = document.getElementById('labW'); if (!w) return;
+  const W = +w.value, C = +document.getElementById('labC').value, B = +document.getElementById('labB').value, Q = document.getElementById('labQ').checked;
+  const ge = [W > 50, C > 11250000, B > 6000000], geN = ge.filter(Boolean).length;
+  const mi = [W > 10, C > 900000, B > 450000], miN = mi.filter(Boolean).length;
+  document.getElementById('labWv').textContent = W; document.getElementById('labWv').className = 'lab-val' + (ge[0] ? ' over' : '');
+  document.getElementById('labCv').textContent = fmtNum(C) + ' €'; document.getElementById('labCv').className = 'lab-val' + (ge[1] ? ' over' : '');
+  document.getElementById('labBv').textContent = fmtNum(B) + ' €'; document.getElementById('labBv').className = 'lab-val' + (ge[2] ? ' over' : '');
+  let cat, cls, txt;
+  if (Q) { cat = 'Grande société'; cls = 'ge'; txt = 'Cotée en Bourse : grande société, quels que soient les chiffres.'; }
+  else if (geN >= 2) { cat = 'Grande société'; cls = 'ge'; txt = geN + ' seuils sur 3 dépassés (il en faut au moins 2).'; }
+  else if (miN <= 1) { cat = 'Microsociété'; cls = 'micro'; txt = geN + ' seuil de grande société dépassé, ' + miN + ' seuil micro dépassé (maximum 1 autorisé).'; }
+  else { cat = 'Petite société'; cls = 'pe'; txt = geN + ' seuil de grande société dépassé (maximum 1 autorisé), mais ' + miN + ' seuils micro dépassés : pas micro.'; }
+  document.getElementById('labTxt').textContent = txt;
+  const b = document.getElementById('labBadge'); b.textContent = cat; b.className = 'lab-badge ' + cls;
+}
+
+// ---- Mission finale : choix du projet ----
+function renderSetup() {
+  const m = APP.mission;
+  const ok = m.project && m.name.trim().length >= 2;
+  return `<div class="screen">
+    <div class="brief-head"><div class="b-ico">🚀</div><div><h2>Choisis ton projet</h2><div class="b-sub">Ces choix personnalisent les questions et ta fiche d'entreprise</div></div></div>
+    <div class="q-card">
+      <div class="q-text">1. Quel projet te tente ?</div>
+      <div class="projects">${Object.entries(PROJECTS).map(([k, p]) => `<div class="proj ${m.project === k ? 'sel' : ''}" onclick="chooseProject('${k}')"><div class="p-ico">${p.icon}</div><div class="p-name">${p.name}</div><div class="p-desc">${p.desc}</div></div>`).join('')}</div>
+      <div class="q-text">2. Le nom de ton entreprise</div>
+      <div class="inp-wrap"><input class="inp" id="missionName" maxlength="40" placeholder="Ex. : Les Douceurs de Mons" value="${m.name.replace(/"/g, '&quot;')}" oninput="APP.mission.name=this.value;document.getElementById('setupBtn').classList.toggle('btn-disabled',!(APP.mission.project&&this.value.trim().length>=2))"><span class="inp-unit">SRL</span></div>
+      <div class="q-text" style="margin-top:18px;">3. La ville de ton siège social</div>
+      <div class="inp-wrap"><input class="inp" id="missionCity" maxlength="30" placeholder="Ex. : Frameries" value="${m.city.replace(/"/g, '&quot;')}" oninput="APP.mission.city=this.value"></div>
+      <div class="btn-row"><button id="setupBtn" class="btn btn-gold ${ok ? '' : 'btn-disabled'}" onclick="finishSetup()">Fonder mon entreprise ➜</button></div>
+    </div>
+  </div>`;
+}
+function chooseProject(k) { APP.mission.project = k; renderScreen(); const inp = document.getElementById('missionName'); if (inp) inp.focus(); }
+function finishSetup() {
+  if (!APP.mission.project || APP.mission.name.trim().length < 2) return;
+  if (!APP.mission.city.trim()) APP.mission.city = 'Frameries';
+  sparkleAt(window.innerWidth / 2, 200);
+  APP.q = 0; setScreen('question');
+}
+
+// ============================================================
+// QUESTIONS — rendu générique
+// ============================================================
+const TYPE_LABELS = {
+  qcm:'Choix unique — 2 essais', vf:'Vrai ou faux — 1 essai', multi:'Plusieurs réponses possibles — 2 essais',
+  input:'Réponse à écrire — 2 essais', classify:'Classement — 2 essais', match:'Association — 2 essais',
+  order:'Remise en ordre — 2 essais', cloze:'Texte à trous — 2 essais', errors:'Chasse aux erreurs — 2 essais'
+};
+
+function renderQuestion(lv, q) {
+  const L = LEVELS[lv], Q = getQ(lv, q), st = stateOf(lv, q);
+  const dots = L.questions.map((_, i) => {
+    const s = APP.qs[lv + '_' + i]; let c = '';
+    if (s && s.done) c = s.status === 'correct' ? 'c' : s.status === 'hint' ? 'h' : 's';
+    if (i === q) c = 'cur';
+    return `<span class="${c}"></span>`;
+  }).join('');
+  let body = '';
+  switch (Q.type) {
+    case 'qcm': body = renderQCM(lv, q, Q, st); break;
+    case 'vf': body = renderVF(lv, q, Q, st); break;
+    case 'multi': body = renderMulti(lv, q, Q, st); break;
+    case 'input': body = renderInput(lv, q, Q, st); break;
+    case 'classify': body = renderClassify(lv, q, Q, st); break;
+    case 'match': body = renderMatch(lv, q, Q, st); break;
+    case 'order': body = renderOrder(lv, q, Q, st); break;
+    case 'cloze': body = renderCloze(lv, q, Q, st); break;
+    case 'errors': body = renderErrors(lv, q, Q, st); break;
+  }
+  const last = q === L.questions.length - 1;
+  return `<div class="screen">
+    <div class="q-top"><span><b>Mission ${lv + 1}</b> — ${L.icon} ${L.title}</span><span>Question ${q + 1}/${L.questions.length}</span></div>
+    <div class="q-dots" style="margin-bottom:12px;">${dots}</div>
+    <div class="q-card" id="qcard">
+      <div class="q-type">${TYPE_LABELS[Q.type]} · ${Q.pts} XP</div>
+      <div class="q-text">${Q.text}</div>
+      ${body}
+      <div class="feedback ${st.fb ? st.fb.cls + ' show' : ''}" id="fb">${st.fb ? st.fb.html : ''}</div>
+      <div class="next-wrap ${st.done ? 'show' : ''}"><button class="btn btn-primary" onclick="nextQuestion()">${last ? 'Voir mon bilan ➜' : 'Question suivante ➜'}</button></div>
+    </div>
+  </div>`;
+}
+
+function afterRenderQuestion() {
+  const inp = document.getElementById('inp');
+  if (inp && !inp.disabled) { inp.focus(); calcPreview(inp); }
+}
+
+function fbText(head, explain) { return head + (explain ? `<span class="fb-x">${explain}</span>` : ''); }
+
+function finalizeQ(lv, q, status, pts, head, explain, ev) {
+  const Q = getQ(lv, q), st = stateOf(lv, q);
+  st.done = true; st.status = status; st.pts = pts;
+  APP.score += pts;
+  if (!APP.results[lv]) APP.results[lv] = [];
+  APP.results[lv].push({ q, status, pts, max:Q.pts });
+  if (status === 'correct') {
+    APP.streak++; if (APP.streak > APP.maxStreak) APP.maxStreak = APP.streak;
+    if (APP.streak >= 3) comboFlash(APP.streak);
+    if (APP.streak >= 5) awardBadge('streak5');
+    if (APP.streak >= 10) awardBadge('streak10');
+    if (Q.badge) awardBadge(Q.badge);
+  } else { APP.streak = 0; }
+  st.fb = { cls: status === 'correct' ? 'ok' : status === 'hint' ? 'hint' : 'ko', html: fbText(head, explain) };
+  if (pts > 0) { const p = ev && ev.clientX ? { x:ev.clientX, y:ev.clientY } : cardPoint(); sparkleAt(p.x, p.y); floatPts(pts, p.x, p.y); playSound(status === 'correct' ? 'ok' : 'half'); }
+  else { playSound('ko'); }
+  updateHUD(); rankCheck(); renderScreen();
+}
+
+function wrongEffect() {
+  const c = document.getElementById('qcard'); if (c) { c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake'); }
+  playSound('ko');
+}
+function cardPoint() { const c = document.getElementById('qcard'); if (!c) return { x:window.innerWidth / 2, y:window.innerHeight / 2 }; const r = c.getBoundingClientRect(); return { x:r.left + r.width / 2, y:Math.max(80, r.top + 60) }; }
+
+function nextQuestion() {
+  const L = LEVELS[APP.level];
+  if (APP.q + 1 >= L.questions.length) { completeLevel(APP.level); return; }
+  APP.q++; setScreen('question');
+}
+
+// ---------------- QCM ----------------
+function renderQCM(lv, q, Q, st) {
+  const letters = ['A', 'B', 'C', 'D', 'E'];
+  return `<div class="options">${Q.options.map((o, i) => {
+    let cls = 'opt';
+    if (st.done) { cls += ' dis'; if (i === Q.correct) cls += ' ok'; else if (i === st.selected || i === st.wrong) cls += ' ko'; }
+    else if (st.wrong === i) cls += ' dis ko';
+    return `<button class="${cls}" onclick="answerQCM(${lv},${q},${i},event)"><span class="letter">${letters[i]}</span><span>${o}</span></button>`;
+  }).join('')}</div>`;
+}
+function answerQCM(lv, q, i, ev) {
+  const Q = getQ(lv, q), st = stateOf(lv, q); if (st.done) return;
+  st.attempt++;
+  if (i === Q.correct) {
+    const pts = st.attempt === 1 ? Q.pts : Math.floor(Q.pts / 2); st.selected = i;
+    finalizeQ(lv, q, st.attempt === 1 ? 'correct' : 'hint', pts, (st.attempt === 1 ? '✅ Parfait, du premier coup !' : '✅ Correct au second essai.') + ' +' + pts + ' XP', Q.explain, ev);
+  } else if (st.attempt === 1) {
+    st.wrong = i; st.fb = { cls:'hint', html:'💡 ' + Q.hint + '<span class="fb-x">Il te reste un essai.</span>' }; wrongEffect(); renderScreen();
+  } else {
+    st.selected = i; finalizeQ(lv, q, 'shown', 0, '👁 La bonne réponse était : <b>' + Q.options[Q.correct] + '</b>', Q.explain, ev);
+  }
+}
+
+// ---------------- VRAI / FAUX ----------------
+function renderVF(lv, q, Q, st) {
+  return `<div class="vf">${[true, false].map(v => {
+    let cls = 'vf-btn';
+    if (st.done) { cls += ' dis'; if (v === Q.correct) cls += ' ok'; else if (v === st.selected) cls += ' ko'; }
+    return `<button class="${cls}" onclick="answerVF(${lv},${q},${v},event)">${v ? '✔️ Vrai' : '✖️ Faux'}</button>`;
+  }).join('')}</div>`;
+}
+function answerVF(lv, q, v, ev) {
+  const Q = getQ(lv, q), st = stateOf(lv, q); if (st.done) return;
+  st.attempt = 1; st.selected = v;
+  if (v === Q.correct) finalizeQ(lv, q, 'correct', Q.pts, '✅ Exact ! +' + Q.pts + ' XP', Q.explain, ev);
+  else finalizeQ(lv, q, 'shown', 0, '👁 C\'était <b>' + (Q.correct ? 'vrai' : 'faux') + '</b>.', Q.explain, ev);
+}
+
+// ---------------- SÉLECTION MULTIPLE ----------------
+function renderMulti(lv, q, Q, st) {
+  if (!st.sel) st.sel = [];
+  const letters = ['A', 'B', 'C', 'D', 'E'];
+  let html = `<div class="options">${Q.options.map((o, i) => {
+    const on = st.sel.includes(i); let cls = 'opt' + (on ? ' chk' : '');
+    if (st.done) { cls += ' dis'; if (Q.correct.includes(i)) cls += on ? ' ok' : ' miss'; else if (on) cls += ' ko'; }
+    return `<button class="${cls}" onclick="toggleMulti(${lv},${q},${i})"><span class="letter">${on ? '✓' : letters[i]}</span><span>${o}</span></button>`;
+  }).join('')}</div>`;
+  if (!st.done) html += `<div class="btn-row"><button class="btn btn-verify ${st.sel.length ? '' : 'btn-disabled'}" onclick="verifyMulti(${lv},${q},event)">✅ Vérifier ma sélection</button></div>`;
+  return html;
+}
+function toggleMulti(lv, q, i) {
+  const st = stateOf(lv, q); if (st.done) return;
+  const k = st.sel.indexOf(i); if (k >= 0) st.sel.splice(k, 1); else st.sel.push(i);
+  renderScreen();
+}
+function verifyMulti(lv, q, ev) {
+  const Q = getQ(lv, q), st = stateOf(lv, q); if (st.done || !st.sel.length) return;
+  st.attempt++;
+  const ok = st.sel.length === Q.correct.length && Q.correct.every(c => st.sel.includes(c));
+  if (ok) { const pts = st.attempt === 1 ? Q.pts : Math.floor(Q.pts / 2); finalizeQ(lv, q, st.attempt === 1 ? 'correct' : 'hint', pts, (st.attempt === 1 ? '✅ Sélection parfaite !' : '✅ Correct au second essai.') + ' +' + pts + ' XP', Q.explain, ev); }
+  else if (st.attempt === 1) { st.fb = { cls:'hint', html:'💡 ' + Q.hint + '<span class="fb-x">Modifie ta sélection, il te reste un essai.</span>' }; wrongEffect(); renderScreen(); }
+  else finalizeQ(lv, q, 'shown', 0, '👁 Les bonnes réponses sont surlignées en vert ; celles qui manquaient sont en pointillés.', Q.explain, ev);
+}
+
+// ---------------- RÉPONSE À ÉCRIRE ----------------
+function renderInput(lv, q, Q, st) {
+  const v = st.val || '';
+  let html = `<div class="inp-wrap"><input class="inp ${st.done ? (st.status === 'shown' ? 'ko' : 'ok') : (st.attempt ? 'ko' : '')}" id="inp" ${st.done ? 'disabled' : ''} value="${v.replace(/"/g, '&quot;')}" placeholder="${Q.placeholder || ''}" oninput="APP.qs['${lv}_${q}'].val=this.value;calcPreview(this)" onkeydown="if(event.key==='Enter')verifyInput(${lv},${q},event)" ${Q.kind === 'number' ? 'inputmode="decimal"' : ''}>${Q.unit ? `<span class="inp-unit">${Q.unit}</span>` : ''}
+    ${st.done ? '' : `<button class="btn btn-verify" onclick="verifyInput(${lv},${q},event)">✅ Vérifier</button>`}</div>`;
+  if (Q.kind === 'number') html += `<div class="calc-preview" id="calcPrev"></div>`;
+  return html;
+}
+function evalExpr(s) {
+  let e = s.replace(/\s|\u00a0|€/g, '').replace(/×/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
+  if (!/^[0-9+\-*/().]+$/.test(e) || !/[+\-*/]/.test(e.slice(1))) return null;
+  try { const r = Function('"use strict";return (' + e + ')')(); return (typeof r === 'number' && isFinite(r)) ? r : null; } catch (err) { return null; }
+}
+function calcPreview(inp) {
+  const p = document.getElementById('calcPrev'); if (!p) return;
+  const r = evalExpr(inp.value || '');
+  p.textContent = r === null ? '' : inp.value.replace(/\*/g, '×').replace(/\//g, '÷') + '  →  = ' + fmtNum(Math.round(r * 100) / 100);
+}
+function parseNum(s) {
+  if (!s) return NaN;
+  const r = evalExpr(s); if (r !== null) return r;
+  let t = s.replace(/\s|\u00a0|€/g, '');
+  if (t.includes(',')) t = t.replace(/\./g, '').replace(',', '.');
+  else if ((t.match(/\./g) || []).length > 1) t = t.replace(/\./g, '');
+  return parseFloat(t);
+}
+function normTxt(s) { return (s || '').toUpperCase().replace(/[\s.\-_\u00a0]/g, ''); }
+function verifyInput(lv, q, ev) {
+  const Q = getQ(lv, q), st = stateOf(lv, q); if (st.done) return;
+  const raw = (document.getElementById('inp').value || '').trim(); if (!raw) return;
+  st.val = raw; st.attempt++;
+  const ok = Q.kind === 'number' ? Math.abs(parseNum(raw) - Q.answer) <= 0.02 : normTxt(raw) === normTxt(Q.answer);
+  const shown = Q.kind === 'number' ? fmtNum(Q.answer) + (Q.unit ? ' ' + Q.unit : '') : Q.answer.replace(/^BE(\d{4})(\d{3})(\d{3})$/, 'BE $1.$2.$3');
+  if (ok) { const pts = st.attempt === 1 ? Q.pts : Math.floor(Q.pts / 2); finalizeQ(lv, q, st.attempt === 1 ? 'correct' : 'hint', pts, (st.attempt === 1 ? '✅ Exact, du premier coup !' : '✅ Correct au second essai.') + ' +' + pts + ' XP', Q.explain, ev); }
+  else if (st.attempt === 1) { st.fb = { cls:'hint', html:'💡 ' + Q.hint + '<span class="fb-x">Corrige ta réponse, il te reste un essai.</span>' }; wrongEffect(); renderScreen(); }
+  else finalizeQ(lv, q, 'shown', 0, '👁 La bonne réponse était : <b>' + shown + '</b>', Q.explain, ev);
+}
+
+// ---------------- CLASSEMENT PAR ZONES ----------------
+function shuffled(n, seed) { const a = [...Array(n).keys()]; let s = seed; for (let i = n - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor(s / 233280 * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function renderClassify(lv, q, Q, st) {
+  if (!st.order) { st.order = shuffled(Q.items.length, lv * 31 + q * 7 + 11); st.placed = {}; st.lock = {}; st.sel = null; st.bounce = []; }
+  const zoneOf = id => Q.zones.find(z => z.id === id);
+  let html = `<div class="pool-label">Clique sur une étiquette, puis sur la zone où la ranger. Clique sur une étiquette rangée pour la reprendre.</div><div class="pool">`;
+  st.order.forEach(i => { if (st.placed[i] === undefined) html += `<div class="tag ${st.sel === i ? 'sel' : ''} ${st.bounce.includes(i) ? 'bounce' : ''}" onclick="clSelect(${lv},${q},${i})">${Q.items[i].name}</div>`; });
+  if (st.order.every(i => st.placed[i] !== undefined)) html += `<span style="font-size:.8rem;color:var(--text3);">Tout est rangé.</span>`;
+  html += `</div><div class="zones ${Q.zones.length === 2 ? 'two' : ''}">`;
+  Q.zones.forEach(z => {
+    html += `<div class="zone z-${z.id} ${st.sel !== null ? 'target' : ''}" onclick="clPlace(${lv},${q},'${z.id}')"><div class="z-t">${z.icon} ${z.label}</div><div class="z-items">`;
+    st.order.forEach(i => { if (st.placed[i] === z.id) { const lk = st.lock[i] || ''; html += `<div class="tag ${lk}" onclick="event.stopPropagation();clUnplace(${lv},${q},${i})">${Q.items[i].name}${lk === 'x' ? `<span class="fix">→ ${zoneOf(Q.items[i].zone).label}</span>` : ''}</div>`; } });
+    html += `</div></div>`;
+  });
+  html += `</div>`;
+  const all = st.order.every(i => st.placed[i] !== undefined);
+  if (!st.done) html += `<div class="btn-row"><button class="btn btn-verify ${all ? '' : 'btn-disabled'}" onclick="clVerify(${lv},${q},event)">✅ Vérifier mon classement</button></div>`;
+  return html;
+}
+function clSelect(lv, q, i) { const st = stateOf(lv, q); if (st.done) return; st.sel = st.sel === i ? null : i; st.bounce = []; renderScreen(); }
+function clPlace(lv, q, zone) { const st = stateOf(lv, q); if (st.done || st.sel === null) return; st.placed[st.sel] = zone; st.sel = null; renderScreen(); }
+function clUnplace(lv, q, i) { const st = stateOf(lv, q); if (st.done || st.lock[i]) return; delete st.placed[i]; renderScreen(); }
+function clVerify(lv, q, ev) {
+  const Q = getQ(lv, q), st = stateOf(lv, q); if (st.done) return;
+  if (!st.order.every(i => st.placed[i] !== undefined)) return;
+  st.attempt++; st.bounce = []; let wrong = 0;
+  st.order.forEach(i => {
+    if (st.lock[i]) return;
+    if (st.placed[i] === Q.items[i].zone) st.lock[i] = st.attempt === 1 ? 'c1' : 'c2';
+    else if (st.attempt === 1) { delete st.placed[i]; st.bounce.push(i); wrong++; }
+    else { st.lock[i] = 'x'; wrong++; }
+  });
+  itemFinish(lv, q, Q, st, wrong, Q.items.length, 'bien classés', ev);
+}
+// Bilan commun aux exercices à éléments (classement, association, ordre, trous)
+function itemFinish(lv, q, Q, st, wrong, n, word, ev) {
+  const v = Q.pts / n;
+  const c1 = Object.values(st.lock).filter(x => x === 'c1').length, c2 = Object.values(st.lock).filter(x => x === 'c2').length;
+  if (st.attempt === 1 && wrong > 0) {
+    st.fb = { cls:'hint', html:`🔄 ${c1}/${n} ${word}. ${wrong > 1 ? 'Les ' + wrong + ' autres sont revenus' : 'Le dernier est revenu'} dans la réserve : réfléchis et réessaie.<span class="fb-x">Il te reste un essai.</span>` };
+    wrongEffect(); renderScreen(); return;
+  }
+  const pts = Math.floor(c1 * v + c2 * v / 2);
+  const status = c1 === n ? 'correct' : (c1 + c2 === n ? 'hint' : 'shown');
+  const head = status === 'correct' ? `✅ ${n}/${n} ${word} du premier coup ! +${pts} XP` : status === 'hint' ? `✅ Tout est correct après ton second essai. +${pts} XP` : `👁 ${c1 + c2}/${n} ${word}. Les erreurs restantes sont corrigées en rouge. +${pts} XP`;
+  finalizeQ(lv, q, status, pts, head, Q.explain, ev);
+}
+
+// ---------------- ASSOCIATION ----------------
+function renderMatch(lv, q, Q, st) {
+  if (!st.sel) { st.sel = {}; st.lock = {}; }
+  let html = `<div class="match">${Q.pairs.map((p, pi) => {
+    const lk = st.lock[pi] || '';
+    return `<div class="m-row"><div class="m-term">${p.term}</div><div style="flex:1.4;"><select class="m-sel ${lk}" style="width:100%;" ${lk ? 'disabled' : ''} onchange="APP.qs['${lv}_${q}'].sel[${pi}]=this.value===''?undefined:+this.value;renderScreen()"><option value="">— Choisis —</option>${Q.options.map((o, oi) => `<option value="${oi}" ${st.sel[pi] === oi ? 'selected' : ''}>${o}</option>`).join('')}</select>${lk === 'x' ? `<span class="fix">→ ${Q.options[p.correct]}</span>` : ''}</div></div>`;
+  }).join('')}</div>`;
+  const all = Q.pairs.every((_, pi) => st.sel[pi] !== undefined);
+  if (!st.done) html += `<div class="btn-row"><button class="btn btn-verify ${all ? '' : 'btn-disabled'}" onclick="mtVerify(${lv},${q},event)">✅ Vérifier mes associations</button></div>`;
+  return html;
+}
+function mtVerify(lv, q, ev) {
+  const Q = getQ(lv, q), st = stateOf(lv, q); if (st.done) return;
+  if (!Q.pairs.every((_, pi) => st.sel[pi] !== undefined)) return;
+  st.attempt++; let wrong = 0;
+  Q.pairs.forEach((p, pi) => {
+    if (st.lock[pi]) return;
+    if (st.sel[pi] === p.correct) st.lock[pi] = st.attempt === 1 ? 'c1' : 'c2';
+    else if (st.attempt === 1) { delete st.sel[pi]; wrong++; }
+    else { st.lock[pi] = 'x'; wrong++; }
+  });
+  itemFinish(lv, q, Q, st, wrong, Q.pairs.length, 'associations correctes', ev);
+}
+
+// ---------------- REMISE EN ORDRE ----------------
+function renderOrder(lv, q, Q, st) {
+  const n = Q.items.length;
+  if (!st.seq) { st.seq = Array(n).fill(null); st.lock = {}; st.pool = shuffled(n, lv * 17 + q * 5 + 3); if (st.pool.every((v, i) => v === i)) st.pool.reverse(); }
+  let html = `<div class="pool-label">Clique sur une étape pour la placer dans la première case libre ; clique sur une case pour la vider.</div><div class="pool">`;
+  st.pool.forEach(i => { if (!st.seq.includes(i)) html += `<div class="tag" onclick="odAdd(${lv},${q},${i})">${Q.items[i]}</div>`; });
+  if (st.seq.every(v => v !== null)) html += `<span style="font-size:.8rem;color:var(--text3);">Toutes les étapes sont placées.</span>`;
+  html += `</div><div class="slots">`;
+  st.seq.forEach((v, pos) => {
+    const lk = st.lock[pos] || '';
+    html += `<div class="slot ${v !== null ? 'filled' : ''} ${lk}" onclick="odRemove(${lv},${q},${pos})"><span class="num">${pos + 1}</span><span>${v !== null ? Q.items[v] : '<i style="color:var(--text3)">…</i>'}</span>${lk === 'x' ? `<span class="fix" style="margin-left:8px;">→ ${Q.items[pos]}</span>` : ''}${pos < n - 1 ? '<span class="arrow">▼</span>' : ''}</div>`;
+  });
+  html += `</div>`;
+  const all = st.seq.every(v => v !== null);
+  if (!st.done) html += `<div class="btn-row"><button class="btn btn-verify ${all ? '' : 'btn-disabled'}" onclick="odVerify(${lv},${q},event)">✅ Vérifier l'ordre</button></div>`;
+  return html;
+}
+function odAdd(lv, q, i) { const st = stateOf(lv, q); if (st.done || st.seq.includes(i)) return; const pos = st.seq.indexOf(null); if (pos < 0) return; st.seq[pos] = i; renderScreen(); }
+function odRemove(lv, q, pos) { const st = stateOf(lv, q); if (st.done || st.lock[pos] || st.seq[pos] === null) return; st.seq[pos] = null; renderScreen(); }
+function odVerify(lv, q, ev) {
+  const Q = getQ(lv, q), st = stateOf(lv, q); if (st.done || !st.seq.every(v => v !== null)) return;
+  st.attempt++; let wrong = 0;
+  st.seq.forEach((v, pos) => {
+    if (st.lock[pos]) return;
+    if (v === pos) st.lock[pos] = st.attempt === 1 ? 'c1' : 'c2';
+    else if (st.attempt === 1) { st.seq[pos] = null; wrong++; }
+    else { st.lock[pos] = 'x'; wrong++; }
+  });
+  itemFinish(lv, q, Q, st, wrong, Q.items.length, 'étapes bien placées', ev);
+}
+
+// ---------------- TEXTE À TROUS ----------------
+function renderCloze(lv, q, Q, st) {
+  const n = Q.answers.length;
+  if (!st.bank) { const words = Q.answers.concat(Q.distractors); st.bank = shuffled(words.length, lv * 13 + q * 3 + 7).map(i => words[i]); st.fill = {}; st.lock = {}; st.selB = null; }
+  const used = Object.values(st.fill);
+  let html = `<div class="pool-label">Clique sur un trou puis sur un mot (ou l'inverse). Clique sur un trou rempli pour le vider.</div><div class="pool" style="margin-bottom:12px;">`;
+  st.bank.forEach((w, bi) => { if (!used.includes(bi)) html += `<div class="tag" onclick="czWord(${lv},${q},${bi})">${w}</div>`; });
+  if (used.length === st.bank.length) html += `<span style="font-size:.8rem;color:var(--text3);">Banque vide.</span>`;
+  html += `</div><div class="cloze-text">`;
+  Q.parts.forEach(p => {
+    if (typeof p === 'string') { html += p; return; }
+    const b = p, lk = st.lock[b] || '', f = st.fill[b];
+    html += `<span class="blank ${lk} ${f !== undefined ? 'filled' : ''} ${st.selB === b ? 'sel' : ''}" onclick="czBlank(${lv},${q},${b})">${f !== undefined ? st.bank[f] : (b + 1)}${lk === 'x' ? `<span class="fix">→ ${Q.answers[b]}</span>` : ''}</span>`;
+  });
+  html += `</div>`;
+  const all = [...Array(n).keys()].every(b => st.fill[b] !== undefined);
+  if (!st.done) html += `<div class="btn-row"><button class="btn btn-verify ${all ? '' : 'btn-disabled'}" onclick="czVerify(${lv},${q},event)">✅ Vérifier le texte</button></div>`;
+  return html;
+}
+function czBlank(lv, q, b) {
+  const st = stateOf(lv, q); if (st.done || st.lock[b]) return;
+  if (st.fill[b] !== undefined) { delete st.fill[b]; st.selB = b; } else st.selB = st.selB === b ? null : b;
+  renderScreen();
+}
+function czWord(lv, q, bi) {
+  const Q = getQ(lv, q), st = stateOf(lv, q); if (st.done) return;
+  if (Object.values(st.fill).includes(bi)) return;
+  let b = st.selB;
+  if (b === null || st.fill[b] !== undefined || st.lock[b]) { b = [...Array(Q.answers.length).keys()].find(x => st.fill[x] === undefined && !st.lock[x]); }
+  if (b === undefined) return;
+  st.fill[b] = bi; st.selB = null; renderScreen();
+}
+function czVerify(lv, q, ev) {
+  const Q = getQ(lv, q), st = stateOf(lv, q); if (st.done) return;
+  const n = Q.answers.length; if (![...Array(n).keys()].every(b => st.fill[b] !== undefined)) return;
+  st.attempt++; let wrong = 0;
+  for (let b = 0; b < n; b++) {
+    if (st.lock[b]) continue;
+    if (st.bank[st.fill[b]] === Q.answers[b]) st.lock[b] = st.attempt === 1 ? 'c1' : 'c2';
+    else if (st.attempt === 1) { delete st.fill[b]; wrong++; }
+    else { st.lock[b] = 'x'; wrong++; }
+  }
+  itemFinish(lv, q, Q, st, wrong, n, 'trous corrects', ev);
+}
+
+// ---------------- CHASSE AUX ERREURS ----------------
+function renderErrors(lv, q, Q, st) {
+  if (!st.flags) { st.flags = []; st.lock = {}; st.fa = 0; st.faNow = []; }
+  const nErr = Q.segments.filter(s => s.err).length;
+  let html = `<div class="pool-label">Clique sur une phrase pour la signaler comme fausse (clique à nouveau pour annuler).</div><div class="hunt">`;
+  Q.segments.forEach((s, i) => {
+    const lk = st.lock[i] || '', fl = st.flags.includes(i) && !lk;
+    html += `<span class="seg ${lk} ${fl ? 'flag' : ''} ${st.faNow.includes(i) ? 'fa' : ''}" onclick="erToggle(${lv},${q},${i})">${s.t}</span> `;
+    if (st.done && s.err) html += `<span class="corr">✏️ ${s.fix}</span>`;
+  });
+  html += `</div>`;
+  const found = Object.values(st.lock).filter(x => x === 'c1' || x === 'c2').length;
+  html += `<div class="hunt-count">Erreurs trouvées : ${found}/${nErr} · phrases signalées : ${st.flags.filter(i => !st.lock[i]).length}</div>`;
+  if (!st.done) html += `<div class="btn-row"><button class="btn btn-verify ${st.flags.some(i => !st.lock[i]) ? '' : 'btn-disabled'}" onclick="erVerify(${lv},${q},event)">🔎 Vérifier mes signalements</button></div>`;
+  return html;
+}
+function erToggle(lv, q, i) { const st = stateOf(lv, q); if (st.done || st.lock[i]) return; st.faNow = []; const k = st.flags.indexOf(i); if (k >= 0) st.flags.splice(k, 1); else st.flags.push(i); renderScreen(); }
+function erVerify(lv, q, ev) {
+  const Q = getQ(lv, q), st = stateOf(lv, q); if (st.done) return;
+  const pending = st.flags.filter(i => !st.lock[i]); if (!pending.length) return;
+  st.attempt++; st.faNow = []; let faThis = 0;
+  pending.forEach(i => {
+    if (Q.segments[i].err) st.lock[i] = st.attempt === 1 ? 'c1' : 'c2';
+    else { faThis++; st.faNow.push(i); }
+  });
+  st.flags = st.flags.filter(i => st.lock[i]);
+  st.fa += faThis;
+  const nErr = Q.segments.filter(s => s.err).length;
+  const c1 = Object.values(st.lock).filter(x => x === 'c1').length, c2 = Object.values(st.lock).filter(x => x === 'c2').length;
+  if (st.attempt === 1 && c1 < nErr) {
+    st.fb = { cls:'hint', html:`🔎 ${c1} erreur${c1 > 1 ? 's' : ''} trouvée${c1 > 1 ? 's' : ''} sur ${nErr}${faThis ? `, et ${faThis} fausse${faThis > 1 ? 's' : ''} alerte${faThis > 1 ? 's' : ''} (phrase${faThis > 1 ? 's' : ''} pourtant correcte${faThis > 1 ? 's' : ''})` : ''}. Il en reste ${nErr - c1} à débusquer.<span class="fb-x">Relis les phrases non surlignées, il te reste un essai.</span>` };
+    wrongEffect(); renderScreen(); return;
+  }
+  Q.segments.forEach((s, i) => { if (s.err && !st.lock[i]) st.lock[i] = 'x'; });
+  const v = Q.pts / nErr;
+  const pts = Math.max(0, Math.floor(c1 * v + c2 * v / 3 - st.fa));
+  const status = (c1 === nErr && st.fa === 0) ? 'correct' : (c1 + c2 === nErr ? 'hint' : 'shown');
+  const head = status === 'correct' ? `✅ Les ${nErr} erreurs trouvées du premier coup, sans fausse alerte ! +${pts} XP` : status === 'hint' ? `✅ Toutes les erreurs sont trouvées${st.fa ? ' (avec ' + st.fa + ' fausse' + (st.fa > 1 ? 's' : '') + ' alerte' + (st.fa > 1 ? 's' : '') + ')' : ''}. +${pts} XP` : `👁 ${c1 + c2}/${nErr} erreurs trouvées. Celles que tu as manquées sont barrées en rouge, avec leur correction. +${pts} XP`;
+  finalizeQ(lv, q, status, pts, head, null, ev);
+}
+
+// ============================================================
+// FIN DE MISSION & BILANS
+// ============================================================
+function completeLevel(i) {
+  APP.completed.add(i);
+  const pct = levelPct(i);
+  if (!APP.completedExercises.includes(i)) {
+    APP.completedExercises.push(i);
+    const temps = Math.round((Date.now() - (APP.levelStart[i] || Date.now())) / 1000);
+    sendResult((i + 1) + '. ' + LEVELS[i].title, levelXP(i), LEVELS[i].maxPoints, temps);
+  }
+  setScreen('bilan');
+  if (i === 0) awardBadge('first');
+  if (pct === 100) awardBadge('perfect');
+  if (i === 5 && pct >= 85) awardBadge('lynx');
+  if (i === 8) awardBadge('founder');
+  const p = APP.predictions[i];
+  if ((p === 'half' && pct < 65) || (p === 'most' && pct >= 65 && pct < 90) || (p === 'all' && pct >= 90)) awardBadge('oracle');
+  if (APP.completed.size === LEVELS.length) {
+    awardBadge('marathon');
+    if (finalPct() >= 85) awardBadge('legend');
+  }
+  if (pct >= 85) setTimeout(() => launchConfetti(50), 300);
+  playSound(pct >= 65 ? 'level' : 'ok');
+}
+
+function gradeFor(pct) {
+  if (pct >= 85) return { g:'A — Excellent', c:'var(--success)', medal:'🏆', msg:'Impressionnant : tu maîtrises ce chapitre comme un pro.' };
+  if (pct >= 65) return { g:'B — Très bien', c:'var(--accent)', medal:'🥇', msg:'Bravo, du solide travail. Relis les points en orange et en rouge.' };
+  if (pct >= 45) return { g:'C — Satisfaisant', c:'var(--warning)', medal:'🥈', msg:'Bonne base. Les notions en rouge méritent une seconde lecture.' };
+  return { g:'D — À retravailler', c:'var(--error)', medal:'🥉', msg:'Pas de panique : relis le briefing et rejoue cette mission plus tard.' };
+}
+function glitterHTML() { let h = '<span class="glitter">'; for (let k = 0; k < 14; k++) h += `<i style="left:${Math.random() * 100}%;top:${Math.random() * 100}%;animation-delay:${(Math.random() * 1.6).toFixed(2)}s;width:${3 + Math.random() * 5}px;height:${3 + Math.random() * 5}px;"></i>`; return h + '</span>'; }
+
+function renderBilan(i) {
+  const L = LEVELS[i], r = APP.results[i] || [];
+  const c = r.filter(x => x.status === 'correct').length, h = r.filter(x => x.status === 'hint').length, s = r.filter(x => x.status === 'shown').length;
+  const pct = levelPct(i), G = gradeFor(pct), xp = levelXP(i);
+  const p = APP.predictions[i];
+  const predTxt = { half:'environ la moitié', most:'les trois quarts', all:'toutes les questions' }[p];
+  const predOk = (p === 'half' && pct < 65) || (p === 'most' && pct >= 65 && pct < 90) || (p === 'all' && pct >= 90);
+  const next = i + 1 < LEVELS.length ? i + 1 : null;
+  const allDone = APP.completed.size === LEVELS.length;
+  return `<div class="screen">
+    <div class="bilan">
+      <div style="position:relative;display:inline-block;">${pct >= 65 ? glitterHTML() : ''}<div class="medal">${G.medal}</div></div>
+      <div style="font-size:.8rem;color:var(--text2);">Mission ${i + 1} — ${L.title}</div>
+      <div class="grade" style="color:${G.c}">${G.g}</div>
+      <div class="stars-big" style="color:var(--gold)">${starsFor(pct)}</div>
+      <div class="xp-gain">+${xp} XP <span style="font-size:.85rem;color:var(--text2);font-weight:400;">sur ${L.maxPoints}</span></div>
+      <div class="bilan-msg">${G.msg}</div>
+      <div class="legend"><span><i class="dot g"></i> Réussies du 1<sup>er</sup> coup</span><span><i class="dot o"></i> Corrigées au 2<sup>e</sup> essai</span><span><i class="dot r"></i> Réponses montrées</span></div>
+      <table class="bilan-table">
+        <tr><th>Résultat</th><th>Nombre</th></tr>
+        <tr><td style="color:var(--success)">✅ Réussies du premier coup</td><td>${c}</td></tr>
+        <tr><td style="color:var(--warning)">🔄 Corrigées au second essai</td><td>${h}</td></tr>
+        <tr><td style="color:var(--error)">👁 Réponses montrées</td><td>${s}</td></tr>
+        <tr style="font-weight:700"><td>Réussite au premier essai</td><td>${pct} %</td></tr>
+      </table>
+      ${predTxt ? `<div class="pred-res">🔮 Tu avais prédit <b>${predTxt}</b> ; tu as réussi <b>${c}/${r.length}</b> du premier coup. ${predOk ? 'Bonne estimation, tu te connais bien !' : (pct > 89 && p !== 'all' ? 'Tu t\'es sous-estimé(e) !' : 'Prédire son résultat aide à mieux apprendre : réessaie à la mission suivante.')}</div>` : ''}
+      ${i === 8 ? renderFiche() : ''}
+      <div class="btn-row">
+        ${allDone ? `<button class="btn btn-gold" onclick="goHub()">🎓 Voir mon bilan final ➜</button>` : (next !== null ? `<button class="btn btn-gold" onclick="openLevel(${next})">Mission suivante ➜</button>` : '')}
+        <button class="btn btn-ghost" onclick="goHub()">🗺️ Parcours</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function finalPct() {
+  let c = 0, n = 0;
+  LEVELS.forEach((_, i) => { const r = APP.results[i] || []; c += r.filter(x => x.status === 'correct').length; n += r.length; });
+  return n ? Math.round(c / n * 100) : 0;
+}
+
+let finalShown = false;
+function renderFinal() {
+  const pct = finalPct(), G = gradeFor(pct);
+  let tc = 0, th = 0, ts = 0;
+  const rows = LEVELS.map((L, i) => { const r = APP.results[i] || []; const c = r.filter(x => x.status === 'correct').length, h = r.filter(x => x.status === 'hint').length, s = r.filter(x => x.status === 'shown').length; tc += c; th += h; ts += s; return `<tr><td>${L.icon} ${L.title}</td><td style="color:var(--success)">${c}</td><td style="color:var(--warning)">${h}</td><td style="color:var(--error)">${s}</td><td style="color:var(--gold)">${starsFor(levelPct(i))}</td></tr>`; }).join('');
+  if (!finalShown) { finalShown = true; if (pct >= 70) setTimeout(() => launchConfetti(140), 400); }
+  return `<div class="bilan" style="margin-bottom:24px;">
+    <div style="position:relative;display:inline-block;">${glitterHTML()}<div class="medal">${G.medal}</div></div>
+    <h2 style="font-size:1.4rem;margin-bottom:2px;">Bilan final</h2>
+    <div class="grade" style="color:${G.c}">${G.g}</div>
+    <div class="xp-gain">${APP.score} XP <span style="font-size:.85rem;color:var(--text2);font-weight:400;">sur ${TOTAL_XP} — ${pct} % de réussite au premier essai</span></div>
+    <div class="bilan-msg">${RANKS[APP.rankIdx].icon} Rang atteint : <b style="color:var(--gold)">${RANKS[APP.rankIdx].name}</b> · meilleure série : 🔥 ${APP.maxStreak} · badges : ${APP.badges.size}/${BADGES.length}</div>
+    <div class="legend"><span><i class="dot g"></i> ${tc}</span><span><i class="dot o"></i> ${th}</span><span><i class="dot r"></i> ${ts}</span></div>
+    <table class="bilan-table"><tr><th>Mission</th><th>✅</th><th>🔄</th><th>👁</th><th>Étoiles</th></tr>${rows}</table>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="restartGame()">🔄 Rejouer</button>
+      <button class="btn btn-outline" onclick="openLB('app')">🏆 Classement</button>
+      <button class="btn btn-outline-orange" onclick="openLB('global')">🌍 Général</button>
+    </div>
+  </div>`;
+}
+
+function renderFiche() {
+  const m = APP.mission, P = PROJECTS[m.project || 'choco'];
+  const sect = { choco:'Secondaire (fabrication) et tertiaire (vente en boutique)', velo:'Tertiaire (réparation et vente d\'accessoires)', ferme:'Primaire (culture de légumes)' }[m.project || 'choco'];
+  const cli = { choco:'Particuliers (B2C)', velo:'Particuliers (B2C)', ferme:'Entreprises (B2B)' }[m.project || 'choco'];
+  const date = new Date().toLocaleDateString('fr-BE', { day:'2-digit', month:'long', year:'numeric' });
+  return `<div class="fiche" id="fiche">
+    <h3>Fiche d'entreprise — Banque-Carrefour des Entreprises</h3>
+    <div class="f-name">${P.icon} ${m.name.trim()} SRL</div>
+    <table>
+      <tr><td>Activité</td><td>${P.name}</td></tr>
+      <tr><td>Forme juridique</td><td>Société à responsabilité limitée (SRL), fondée par une personne</td></tr>
+      <tr><td>Siège social</td><td>${m.city.trim() || 'Frameries'}, Belgique</td></tr>
+      <tr><td>Nationalité</td><td>Belge</td></tr>
+      <tr><td>Numéro d'entreprise</td><td>1012.456.702</td></tr>
+      <tr><td>Numéro de TVA</td><td>BE 1012.456.702</td></tr>
+      <tr><td>Secteur(s) d'activité</td><td>${sect}</td></tr>
+      <tr><td>Clients</td><td>${cli}</td></tr>
+      <tr><td>Taille (après 3 ans)</td><td>Microsociété</td></tr>
+      <tr><td>Fondateur / fondatrice</td><td>${firstName()}</td></tr>
+    </table>
+    <div class="f-foot"><span>Créée le ${date}</span><span>Économie d'entreprise — ISL Frameries</span></div>
+    <div class="stamp">BCE ✔</div>
+  </div>
+  <div class="btn-row"><button class="btn btn-ghost" onclick="window.print()">🖨️ Imprimer ma fiche</button></div>`;
+}
+
+function restartGame() {
+  APP.score = 0; APP.streak = 0; APP.maxStreak = 0; APP.rankIdx = 0;
+  APP.completed = new Set(); APP.results = {}; APP.qs = {}; APP.predictions = {}; APP.levelStart = {};
+  APP.badges = new Set(); APP.mission = { project:null, name:'', city:'' };
+  APP.completedExercises = []; finalShown = false;
+  APP.globalTimerStart = Date.now();
+  TRACKING.sessionId = new Date().toISOString();
+  APP.level = null; setScreen('hub');
+}
+
+// ============================================================
+// EFFETS : particules, points flottants, combos, badges, rangs, confettis
+// ============================================================
+function sparkleAt(x, y) {
+  const colors = ['#ffd166', '#22d68a', '#ffffff', '#ff8a3d', '#a78bfa'];
+  for (let k = 0; k < 16; k++) {
+    const s = document.createElement('div'); s.className = 'spark';
+    const a = Math.random() * Math.PI * 2, d = 40 + Math.random() * 70;
+    s.style.left = x + 'px'; s.style.top = y + 'px'; s.style.background = colors[k % colors.length];
+    s.style.setProperty('--dx', Math.cos(a) * d + 'px'); s.style.setProperty('--dy', Math.sin(a) * d + 'px');
+    s.style.width = s.style.height = (4 + Math.random() * 6) + 'px';
+    document.body.appendChild(s); setTimeout(() => s.remove(), 900);
+  }
+}
+function floatPts(pts, x, y) {
+  const f = document.createElement('div'); f.className = 'float-pts'; f.textContent = '+' + pts + ' XP';
+  f.style.left = (x - 20) + 'px'; f.style.top = (y - 30) + 'px'; document.body.appendChild(f); setTimeout(() => f.remove(), 1200);
+}
+function comboFlash(n) {
+  const c = document.createElement('div'); c.className = 'combo';
+  c.textContent = n >= 10 ? '⚡ INARRÊTABLE ×' + n : n >= 5 ? '🔥 EN FEU ×' + n : '🔥 COMBO ×' + n;
+  document.body.appendChild(c); setTimeout(() => c.remove(), 1400);
+}
+function launchConfetti(n) {
+  const colors = ['#22d68a', '#ffd166', '#ff8a3d', '#4d9bff', '#a78bfa', '#ff5c8a', '#ffffff'];
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement('div'); el.className = 'confetti';
+    el.style.left = Math.random() * 100 + 'vw'; el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.borderRadius = Math.random() > .5 ? '50%' : '2px'; el.style.width = (6 + Math.random() * 8) + 'px'; el.style.height = (6 + Math.random() * 10) + 'px';
+    el.style.animationDelay = (Math.random() * 1.2) + 's'; el.style.animationDuration = (2.2 + Math.random() * 2) + 's';
+    document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
+  }
+}
+let toastQueue = [], toastBusy = false;
+function awardBadge(id) {
+  if (APP.badges.has(id)) return;
+  const b = BADGES.find(x => x.id === id); if (!b) return;
+  APP.badges.add(id); toastQueue.push(b); playSound('badge'); showNextToast();
+}
+function showNextToast() {
+  if (toastBusy || !toastQueue.length) return;
+  toastBusy = true; const b = toastQueue.shift(), t = document.getElementById('toast');
+  document.getElementById('toastIco').textContent = b.icon; document.getElementById('toastName').textContent = b.name; document.getElementById('toastDesc').textContent = b.desc;
+  t.classList.add('show'); sparkleAt(window.innerWidth / 2, window.innerHeight - 60);
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => { toastBusy = false; showNextToast(); }, 500); }, 3200);
+}
+function showRankUp(rk) {
+  document.getElementById('ruIcon').textContent = rk.icon; document.getElementById('ruName').textContent = rk.name;
+  document.getElementById('rankup').classList.add('show'); playSound('level'); launchConfetti(60);
+}
+function closeRankUp() { document.getElementById('rankup').classList.remove('show'); }
+
+// ---- Sons (Web Audio, aucun fichier externe) ----
+let audioCtx = null;
+function toggleSound() { APP.sound = !APP.sound; document.getElementById('soundBtn').textContent = APP.sound ? '🔊' : '🔇'; if (APP.sound) playSound('ok'); }
+function tone(freq, start, dur, type, vol) {
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = type || 'sine'; o.frequency.value = freq; o.connect(g); g.connect(audioCtx.destination);
+  const t = audioCtx.currentTime + start; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol || .12, t + .01); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  o.start(t); o.stop(t + dur + .05);
+}
+function playSound(kind) {
+  if (!APP.sound) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (kind === 'ok') { tone(660, 0, .12); tone(990, .1, .18); }
+    else if (kind === 'half') { tone(520, 0, .15); tone(660, .12, .18); }
+    else if (kind === 'ko') { tone(220, 0, .22, 'triangle', .1); }
+    else if (kind === 'badge') { tone(784, 0, .12); tone(988, .1, .12); tone(1319, .2, .3); }
+    else if (kind === 'level') { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .1, .28)); }
+  } catch (e) { /* silence */ }
+}
+
+// ============================================================
+// TRACKING — Configuration (SPEC_Tracking_Eleves_v5)
+// ============================================================
+const TRACKING = {
+  appName: "L'Entreprise — Expert",
+  totalNiveaux: LEVELS.length,
+  sessionId: null,
+  scriptUrl: "https://script.google.com/macros/s/AKfycbx9bRMVuHU2mgFLii1KcQXD3LdZahnDH1rf1cWv9RuDvQAt0l3VtLtxzmbH7MtpJWRjfA/exec"
+};
+
+function showEmailModal() {
+  document.getElementById('emailOverlay').classList.add('show');
+  const input = document.getElementById('emailInput');
+  const saved = localStorage.getItem('student_email'); if (saved) input.value = saved;
+  input.focus(); document.getElementById('emailError').textContent = '';
+}
+
+function validateEmail() {
+  const input = document.getElementById('emailInput'), btn = document.getElementById('emailBtn'), errDiv = document.getElementById('emailError');
+  const email = input.value.trim().toLowerCase();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errDiv.textContent = '⚠️ Entre une adresse email valide.'; input.style.borderColor = 'var(--error)'; return; }
+  btn.textContent = '⏳ Vérification…'; btn.disabled = true; errDiv.textContent = ''; input.style.borderColor = '';
+  const cbName = '_emailCb_' + Date.now();
+  const timeout = setTimeout(() => {
+    delete window[cbName]; const s = document.getElementById(cbName); if (s) s.remove();
+    errDiv.textContent = '⚠️ Connexion impossible. Vérifie ta connexion internet.'; btn.textContent = '✅ Vérifier et commencer'; btn.disabled = false;
+  }, 10000);
+  window[cbName] = function(resp) {
+    clearTimeout(timeout); delete window[cbName]; const s = document.getElementById(cbName); if (s) s.remove();
+    btn.textContent = '✅ Vérifier et commencer'; btn.disabled = false;
+    if (resp && resp.found) {
+      const oldEmail = localStorage.getItem('student_email');
+      localStorage.setItem('student_email', email); localStorage.setItem('student_classe', resp.classe || '');
+      APP.email = email; APP.classe = resp.classe || '';
+      if (oldEmail && oldEmail !== email) resetProgression();
+      TRACKING.sessionId = new Date().toISOString();
+      document.getElementById('emailOverlay').classList.remove('show');
+      startGlobalTimer(); renderScreen();
+    } else {
+      errDiv.textContent = "⚠️ Cette adresse email n'est pas enregistrée. Vérifie l'orthographe ou demande à ton professeur de t'ajouter à la liste.";
+      input.style.borderColor = 'var(--error)';
+    }
+  };
+  const s = document.createElement('script'); s.id = cbName;
+  s.src = `${TRACKING.scriptUrl}?action=check_email&email=${encodeURIComponent(email)}&callback=${cbName}`;
+  s.onerror = () => { clearTimeout(timeout); delete window[cbName]; s.remove(); errDiv.textContent = '⚠️ Erreur de connexion au serveur.'; btn.textContent = '✅ Vérifier et commencer'; btn.disabled = false; };
+  document.body.appendChild(s);
+}
+
+function resetProgression() {
+  APP.score = 0; APP.streak = 0; APP.maxStreak = 0; APP.rankIdx = 0; APP.completed = new Set(); APP.results = {}; APP.qs = {};
+  APP.predictions = {}; APP.levelStart = {}; APP.badges = new Set(); APP.completedExercises = []; APP.mission = { project:null, name:'', city:'' }; finalShown = false;
+  APP.level = null; APP.screen = 'welcome';
+  console.log('[TRACKING] Progression réinitialisée (nouvel email)');
+}
+
+function startGlobalTimer() {
+  APP.globalTimerStart = Date.now();
+  const el = document.getElementById('globalTimer'); if (el) el.style.display = 'inline-flex';
+  if (APP.globalTimerInterval) clearInterval(APP.globalTimerInterval);
+  APP.globalTimerInterval = setInterval(updateTimerDisplay, 1000); updateTimerDisplay();
+}
+function updateTimerDisplay() {
+  const el = document.getElementById('globalTimer'); if (!el || !APP.globalTimerStart) return;
+  const e = Math.floor((Date.now() - APP.globalTimerStart) / 1000);
+  el.textContent = '⏱️ ' + String(Math.floor(e / 60)).padStart(2, '0') + ':' + String(e % 60).padStart(2, '0');
+}
+function startExerciseTimer(i) { APP.exerciseStartTime = Date.now(); APP.scoreBeforeExercise = APP.score; }
+function stopExerciseTimer(i) { if (!APP.exerciseStartTime) return null; const t = Math.round((Date.now() - APP.exerciseStartTime) / 1000); APP.exerciseStartTime = null; return { points:APP.score - APP.scoreBeforeExercise, temps:t }; }
+
+function sendResult(niveau, points, pointsMax, temps) {
+  if (!APP.email) return;
+  const payload = { email:APP.email, classe:APP.classe, app:TRACKING.appName, niveau, points, pointsMax, temps, totalNiveaux:TRACKING.totalNiveaux, sessionId:TRACKING.sessionId };
+  console.log('[TRACKING] Envoi:', payload);
+  fetch(TRACKING.scriptUrl, { method:'POST', mode:'no-cors', headers:{ 'Content-Type':'text/plain' }, body:JSON.stringify(payload) }).catch(err => console.warn('[TRACKING] Erreur:', err));
+}
+
+// ---- Classement ----
+let currentLBTab = 'app';
+function openLB(tab) { document.getElementById('lbOverlay').classList.add('show'); switchLBTab(tab || 'app'); }
+function closeLB() { document.getElementById('lbOverlay').classList.remove('show'); }
+function switchLBTab(tab) {
+  currentLBTab = tab;
+  const a = document.getElementById('lbTabApp'), g = document.getElementById('lbTabGlobal');
+  if (tab === 'app') { a.style.background = 'var(--accent)'; a.style.color = '#0c0f1a'; g.style.background = 'transparent'; g.style.color = 'var(--orange)'; }
+  else { g.style.background = 'var(--orange)'; g.style.color = '#0c0f1a'; a.style.background = 'transparent'; a.style.color = 'var(--accent)'; }
+  fetchLeaderboard(tab);
+}
+function fetchLeaderboard(tab) {
+  const content = document.getElementById('lbContent');
+  content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2);">⏳ Chargement…</div>';
+  const action = tab === 'app' ? 'leaderboard_app' : 'leaderboard_global', cbName = '_lbCb_' + Date.now();
+  const timeout = setTimeout(() => {
+    delete window[cbName]; const s = document.getElementById(cbName); if (s) s.remove();
+    content.innerHTML = '<div style="text-align:center;padding:40px;"><div style="color:var(--error);margin-bottom:12px;">⚠️ Connexion impossible</div><button class="btn btn-ghost" onclick="fetchLeaderboard(\'' + tab + '\')">Réessayer</button></div>';
+  }, 10000);
+  window[cbName] = function(resp) {
+    clearTimeout(timeout); delete window[cbName]; const s = document.getElementById(cbName); if (s) s.remove();
+    const lbData = resp && (resp.leaderboard || resp.data);
+    if (!lbData || lbData.length === 0) { content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2);">🏁 Aucun résultat pour le moment</div>'; return; }
+    renderLeaderboard(lbData, tab);
+  };
+  let url = `${TRACKING.scriptUrl}?action=${action}&callback=${cbName}&mode=last`;
+  if (tab === 'app') url += `&app=${encodeURIComponent(TRACKING.appName)}`;
+  if (APP.classe) url += `&classe=${encodeURIComponent(APP.classe)}`;
+  const s = document.createElement('script'); s.id = cbName; s.src = url;
+  s.onerror = () => { clearTimeout(timeout); delete window[cbName]; s.remove(); content.innerHTML = '<div style="text-align:center;padding:40px;color:var(--error);">⚠️ Erreur de connexion</div>'; };
+  document.body.appendChild(s);
+}
+function renderLeaderboard(data, tab) {
+  const content = document.getElementById('lbContent'), myEmail = (APP.email || '').toLowerCase();
+  if (tab === 'global' && data.length > 0) {
+    data = data.slice().sort((a, b) => { const pa = a.pct || 0, pb = b.pct || 0; if (pb !== pa) return pb - pa; return (a.totalTemps || 0) - (b.totalTemps || 0); });
+    data.forEach((e, i) => { e.rang = i + 1; });
+  }
+  const me = data.find(r => r.email === myEmail);
+  let html = `<h3 style="font-size:1rem;margin-bottom:12px;">${tab === 'app' ? '🏆 Classement — ' + TRACKING.appName : '🌍 Classement général'}${APP.classe ? ' (' + APP.classe + ')' : ''}</h3>`;
+  if (me) {
+    const pct = me.pct != null ? me.pct : 0;
+    const count = tab === 'app' ? (me.niveauxCompletes || me.niveaux || 0) : (me.appsCompletes || me.apps || 0);
+    const total = tab === 'app' ? (me.totalNiveaux || 0) : (me.totalPossibleNiveaux || 0);
+    const prog = total > 0 ? count + '/' + total + (tab === 'app' ? ' niveaux' : ' apps') : count + (tab === 'app' ? ' niveaux' : ' apps');
+    html += `<div style="background:rgba(34,214,138,.08);border:1px solid rgba(34,214,138,.3);border-radius:12px;padding:14px;margin-bottom:16px;display:flex;justify-content:space-around;text-align:center;">
+      <div><div style="font-size:1.3rem;font-weight:800;color:var(--accent);">#${me.rang}</div><div style="font-size:.7rem;color:var(--text2);">rang</div></div>
+      <div><div style="font-size:1.3rem;font-weight:800;">${me.totalPoints}</div><div style="font-size:.7rem;color:var(--text2);">points</div></div>
+      <div><div style="font-size:1.3rem;font-weight:800;color:${pct >= 80 ? 'var(--accent)' : pct >= 50 ? 'var(--orange)' : 'var(--error)'};">${pct}%</div><div style="font-size:.7rem;color:var(--text2);">réussite</div></div>
+      <div><div style="font-size:1.3rem;font-weight:800;color:var(--text2);">${prog}</div><div style="font-size:.7rem;color:var(--text2);">progression</div></div>
+    </div>`;
+  }
+  const medals = ['🥇', '🥈', '🥉'];
+  html += '<table style="width:100%;border-collapse:collapse;font-size:.85rem;"><tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:8px 4px;color:var(--text2);font-size:.72rem;">#</th><th style="text-align:left;padding:8px 4px;color:var(--text2);font-size:.72rem;">Élève</th><th style="text-align:right;padding:8px 4px;color:var(--text2);font-size:.72rem;">Pts</th><th style="text-align:right;padding:8px 4px;color:var(--text2);font-size:.72rem;">%</th><th style="text-align:right;padding:8px 4px;color:var(--text2);font-size:.72rem;">Temps</th></tr>';
+  data.forEach(row => {
+    const r = row.rang || 0, name = row.email.split('@')[0].split(/[._-]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    const pct = row.pct != null ? row.pct : (row.pourcentage != null ? row.pourcentage : 0), temps = row.totalTemps || row.totalTime || 0, isMe = row.email === myEmail;
+    const pctC = pct >= 80 ? 'var(--accent)' : pct >= 50 ? 'var(--orange)' : 'var(--error)';
+    let tStr = '—'; if (temps > 0) { const m = Math.floor(temps / 60), s = temps % 60; tStr = m > 0 ? m + 'm' + String(s).padStart(2, '0') + 's' : s + 's'; }
+    html += `<tr style="border-bottom:1px solid rgba(255,255,255,.03);background:${isMe ? 'rgba(34,214,138,.08)' : 'transparent'};"><td style="padding:8px 4px;font-weight:700;">${r <= 3 ? medals[r - 1] : r}</td><td style="padding:8px 4px;${isMe ? 'font-weight:800;color:var(--accent);' : ''}">${name}</td><td style="padding:8px 4px;text-align:right;font-weight:700;color:var(--accent);">${row.totalPoints}</td><td style="padding:8px 4px;text-align:right;font-weight:700;color:${pctC};">${pct}%</td><td style="padding:8px 4px;text-align:right;color:var(--text2);font-family:'Space Mono',monospace;font-size:.78rem;">${tStr}</td></tr>`;
+  });
+  content.innerHTML = html + '</table>';
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  updateHUD(); renderNav(); renderScreen();
+  showEmailModal();
+}
+init();
+</script>
+</body>
+</html>
