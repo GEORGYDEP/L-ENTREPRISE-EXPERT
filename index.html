@@ -1095,7 +1095,9 @@ function rankCheck() {
   }
 }
 
-function isLocked(i) { return i > 0 && !APP.completed.has(i - 1); }
+// Dès qu'une mission est terminée, TOUTES les missions sont débloquées :
+// l'élève qui revient peut choisir librement et reprendre là où il s'était arrêté.
+function isLocked(i) { return i > 0 && APP.completed.size === 0; }
 
 function renderNav() {
   const strip = document.getElementById('navStrip');
@@ -1173,7 +1175,8 @@ function renderHub() {
   let nextIdx = LEVELS.findIndex((_, i) => !APP.completed.has(i));
   let html = `<div class="screen">`;
   if (allDone) html += renderFinal();
-  html += `<div class="hub-head"><h2>${allDone ? 'Parcours terminé' : 'Ton parcours'}</h2><p>${allDone ? 'Tu peux revoir chaque mission ou rejouer pour améliorer ton score.' : 'Les missions se débloquent dans l\'ordre. Chaque mission terminée rapporte des XP et des étoiles.'}</p></div>`;
+  const freeChoice = APP.completed.size > 0;
+  html += `<div class="hub-head"><h2>${allDone ? 'Parcours terminé' : 'Ton parcours'}</h2><p>${allDone ? 'Tu peux revoir chaque mission ou rejouer pour améliorer ton score.' : freeChoice ? 'Toutes les missions sont débloquées : clique sur celle que tu veux, par exemple celle où tu t\'étais arrêté(e).' : 'Les missions se débloquent dans l\'ordre. Chaque mission terminée rapporte des XP et des étoiles.'}</p></div>`;
   html += `<div class="path">`;
   LEVELS.forEach((lv, i) => {
     const done = APP.completed.has(i), locked = isLocked(i), isNext = i === nextIdx;
@@ -1209,7 +1212,13 @@ function openLevel(i) {
   if (isLocked(i)) return;
   APP.level = i;
   if (APP.completed.has(i)) { setScreen('bilan'); return; }
-  if (APP.levelStart[i] !== undefined) { setScreen('question'); return; }
+  if (APP.levelStart[i] !== undefined) {
+    // reprise : on repart à la première question non terminée DE CETTE mission
+    const n = LEVELS[i].questions.length;
+    let r = 0; while (r < n - 1 && APP.qs[i + '_' + r] && APP.qs[i + '_' + r].done) r++;
+    APP.q = r;
+    setScreen('question'); return;
+  }
   setScreen('brief');
 }
 
