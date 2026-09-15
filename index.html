@@ -1048,7 +1048,7 @@ const APP = {
   classe: localStorage.getItem('student_classe') || '',
   globalTimerStart:null, globalTimerInterval:null, completedExercises:[],
   // Reprise : passe à true si la feuille Google a déjà un résultat pour cet élève
-  unlockAll:false
+  unlockAll:false, progressChecked:false
 };
 
 function getQ(lv, q) {
@@ -1197,6 +1197,10 @@ function renderHub() {
     </div>`;
   });
   html += `</div>`;
+  // Filet de sécurité : si le serveur n'a rien retrouvé, l'élève peut ouvrir lui-même les missions
+  if (!APP.unlockAll && APP.completed.size === 0 && APP.progressChecked) {
+    html += `<div style="text-align:center;margin-top:14px;"><button class="btn btn-ghost" onclick="unlockAllLevels(0)">🔓 J'ai déjà commencé ce parcours</button></div>`;
+  }
   html += renderTrophies();
   html += `</div>`;
   return html;
@@ -1936,7 +1940,7 @@ function validateEmail() {
       TRACKING.sessionId = new Date().toISOString();
       document.getElementById('emailOverlay').classList.remove('show');
       startGlobalTimer(); renderScreen();
-      checkPreviousProgress(email, true);
+      checkPreviousProgress(email);
     } else {
       errDiv.textContent = "⚠️ Cette adresse email n'est pas enregistrée. Vérifie l'orthographe ou demande à ton professeur de t'ajouter à la liste.";
       input.style.borderColor = 'var(--error)';
@@ -1951,48 +1955,105 @@ function validateEmail() {
 function resetProgression() {
   APP.score = 0; APP.streak = 0; APP.maxStreak = 0; APP.rankIdx = 0; APP.completed = new Set(); APP.results = {}; APP.qs = {};
   APP.predictions = {}; APP.levelStart = {}; APP.badges = new Set(); APP.completedExercises = []; APP.mission = { project:null, name:'', city:'' }; finalShown = false;
-  APP.unlockAll = false;
+  APP.unlockAll = false; APP.progressChecked = false;
   APP.level = null; APP.screen = 'welcome';
   console.log('[TRACKING] Progression réinitialisée (nouvel email)');
 }
 
 // ============================================================
 // REPRISE — l'élève a-t-il déjà des résultats enregistrés pour cette app ?
-// Si oui, toutes les missions sont ouvertes pour qu'il reprenne où il veut.
+// On interroge la feuille Google par étapes (le premier appel qui répond gagne).
+// Tout est tracé dans la console (F12) sous l'étiquette [REPRISE].
 // ============================================================
-function checkPreviousProgress(email, withMode) {
+function jsonpGet(url, onData, onFail) {
+  const cbName = '_pg_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+  const cleanup = () => { delete window[cbName]; const s = document.getElementById(cbName); if (s) s.remove(); };
+  const to = setTimeout(() => { cleanup(); onFail && onFail('délai dépassé'); }, 8000);
+  window[cbName] = function(r) { clearTimeout(to); cleanup(); onData(r); };
+  const s = document.createElement('script'); s.id = cbName;
+  s.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + cbName;
+  s.onerror = () => { clearTimeout(to); cleanup(); onFail && onFail('erreur de connexion'); };
+  document.body.appendChild(s);
+}
+
+// "L'Entreprise — Expert" -> "lentrepriseexpert" (comparaison tolérante)
+function normName(x) {
+  return (x == null ? '' : String(x)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+}
+function countLevels(resp) {
+  const arr = resp && (resp.niveaux || resp.levels || resp.results || resp.rows);
+  return Array.isArray(arr) ? arr.length : 0;
+}
+function countInApp(a) {
+  if (!a) return 0;
+  if (Array.isArray(a.niveaux)) return a.niveaux.length;
+  const v = Number(a.niveauxCompletes || a.niveaux || a.count || 0);
+  return isNaN(v) ? 0 : v;
+}
+
+function checkPreviousProgress(email) {
   email = (email || '').toLowerCase();
   if (!email) return;
-  const cbName = '_progCb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-  const cleanup = () => { delete window[cbName]; const s = document.getElementById(cbName); if (s) s.remove(); };
-  const timeout = setTimeout(() => { cleanup(); console.warn('[TRACKING] Reprise : pas de réponse du serveur'); }, 10000);
-  window[cbName] = function(resp) {
-    clearTimeout(timeout); cleanup();
+  const base = TRACKING.scriptUrl, app = encodeURIComponent(TRACKING.appName), mail = encodeURIComponent(email);
+  const key = normName(TRACKING.appName);
+
+  // Étape 3 — classement de l'app (endpoint utilisé par le bouton Classement, donc toujours présent)
+  const step3 = (mode) => jsonpGet(`${base}?action=leaderboard_app&app=${app}&mode=${mode}`, resp => {
+    console.log('[REPRISE] 3/3 leaderboard_app mode=' + mode + ' →', resp);
     const rows = (resp && (resp.leaderboard || resp.data)) || [];
-    const me = rows.find(r => r && (r.email || '').toLowerCase() === email);
+    const me = rows.find(r => r && String(r.email || '').toLowerCase() === email);
     const nb = me ? Number(me.niveauxCompletes || me.niveaux || 0) : 0;
-    if (me && (nb >= 1 || Number(me.totalPoints || 0) > 0)) { unlockAllLevels(nb); return; }
-    if (withMode) checkPreviousProgress(email, false); // 2e essai, sans le paramètre mode
-    else console.log('[TRACKING] Reprise : aucun résultat précédent trouvé');
-  };
-  let url = `${TRACKING.scriptUrl}?action=leaderboard_app&callback=${cbName}&app=${encodeURIComponent(TRACKING.appName)}`;
-  if (withMode) url += '&mode=last';
-  if (APP.classe) url += `&classe=${encodeURIComponent(APP.classe)}`;
-  const s = document.createElement('script'); s.id = cbName; s.src = url;
-  s.onerror = () => { clearTimeout(timeout); cleanup(); console.warn('[TRACKING] Reprise : erreur de connexion'); };
-  document.body.appendChild(s);
+    if (me && (nb >= 1 || Number(me.totalPoints || 0) > 0)) return finishProgressCheck(nb);
+    if (mode === 'all') return step3('last');
+    console.warn('[REPRISE] Aucun résultat retrouvé pour ' + email + ' dans « ' + TRACKING.appName + ' »');
+    finishProgressCheck(0);
+  }, err => {
+    console.warn('[REPRISE] 3/3 leaderboard_app mode=' + mode + ' : ' + err);
+    if (mode === 'all') return step3('last');
+    finishProgressCheck(0);
+  });
+
+  // Étape 2 — toutes les apps de l'élève (permet de repérer un nom d'app différent dans la feuille)
+  const step2 = () => jsonpGet(`${base}?action=student&email=${mail}`, resp => {
+    console.log('[REPRISE] 2/3 student →', resp);
+    const apps = (resp && (resp.apps || resp.applications)) || [];
+    console.log('[REPRISE] Apps trouvées pour cet élève :', apps.map(a => (a && (a.app || a.application || a.nom || a.name)) || '?'));
+    let exact = 0, proche = 0, nomProche = '';
+    apps.forEach(a => {
+      const nom = normName((a && (a.app || a.application || a.nom || a.name)) || '');
+      const nb = countInApp(a);
+      if (nom === key) exact = Math.max(exact, nb || 1);
+      else if (nom && (nom.indexOf(key) >= 0 || key.indexOf(nom) >= 0)) { proche = Math.max(proche, nb || 1); nomProche = (a.app || a.application || a.nom || a.name); }
+    });
+    if (exact >= 1) return finishProgressCheck(exact);
+    if (proche >= 1) { console.warn('[REPRISE] ⚠️ Nom d\'app différent dans la feuille : « ' + nomProche +' » au lieu de « ' + TRACKING.appName + ' »'); return finishProgressCheck(proche); }
+    step3('all');
+  }, err => { console.warn('[REPRISE] 2/3 student : ' + err); step3('all'); });
+
+  // Étape 1 — résultats de cet élève pour cette app (l'appel le plus précis)
+  jsonpGet(`${base}?action=student_app&email=${mail}&app=${app}`, resp => {
+    console.log('[REPRISE] 1/3 student_app →', resp);
+    const n = countLevels(resp);
+    if (n >= 1) return finishProgressCheck(n);
+    step2();
+  }, err => { console.warn('[REPRISE] 1/3 student_app : ' + err); step2(); });
+}
+
+function finishProgressCheck(nb) {
+  APP.progressChecked = true;
+  if (nb >= 1) unlockAllLevels(nb);
+  else if (APP.screen === 'hub') renderScreen();
 }
 
 function unlockAllLevels(nb) {
   if (APP.unlockAll) return;
   APP.unlockAll = true;
-  console.log('[TRACKING] Reprise : ' + nb + ' mission(s) déjà enregistrée(s) — toutes les missions sont débloquées');
   renderNav();
   if (APP.screen === 'welcome' || APP.screen === 'hub') renderScreen();
   toastQueue.push({
     icon:'🔓',
     name:'Missions débloquées',
-    desc:(nb >= 1 ? nb + ' mission' + (nb > 1 ? 's' : '') + ' déjà terminée' + (nb > 1 ? 's' : '') + ' au cours précédent. ' : '') + 'Choisis celle où tu t\'étais arrêté(e).'
+    desc:(nb >= 1 ? nb + ' mission' + (nb > 1 ? 's' : '') + ' déjà terminée' + (nb > 1 ? 's' : '') + '. ' : '') + 'Choisis celle où tu t\'étais arrêté(e).'
   });
   showNextToast();
 }
