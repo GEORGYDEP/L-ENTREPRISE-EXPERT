@@ -1046,7 +1046,9 @@ const APP = {
   // Tracking
   email: localStorage.getItem('student_email') || '',
   classe: localStorage.getItem('student_classe') || '',
-  globalTimerStart:null, globalTimerInterval:null, completedExercises:[]
+  globalTimerStart:null, globalTimerInterval:null, completedExercises:[],
+  // Reprise : passe à true si la feuille Google a déjà un résultat pour cet élève
+  unlockAll:false
 };
 
 function getQ(lv, q) {
@@ -1097,7 +1099,7 @@ function rankCheck() {
 
 // Dès qu'une mission est terminée, TOUTES les missions sont débloquées :
 // l'élève qui revient peut choisir librement et reprendre là où il s'était arrêté.
-function isLocked(i) { return i > 0 && APP.completed.size === 0; }
+function isLocked(i) { return i > 0 && !APP.unlockAll && APP.completed.size === 0; }
 
 function renderNav() {
   const strip = document.getElementById('navStrip');
@@ -1175,7 +1177,7 @@ function renderHub() {
   let nextIdx = LEVELS.findIndex((_, i) => !APP.completed.has(i));
   let html = `<div class="screen">`;
   if (allDone) html += renderFinal();
-  const freeChoice = APP.completed.size > 0;
+  const freeChoice = APP.completed.size > 0 || APP.unlockAll;
   html += `<div class="hub-head"><h2>${allDone ? 'Parcours terminé' : 'Ton parcours'}</h2><p>${allDone ? 'Tu peux revoir chaque mission ou rejouer pour améliorer ton score.' : freeChoice ? 'Toutes les missions sont débloquées : clique sur celle que tu veux, par exemple celle où tu t\'étais arrêté(e).' : 'Les missions se débloquent dans l\'ordre. Chaque mission terminée rapporte des XP et des étoiles.'}</p></div>`;
   html += `<div class="path">`;
   LEVELS.forEach((lv, i) => {
@@ -1934,6 +1936,7 @@ function validateEmail() {
       TRACKING.sessionId = new Date().toISOString();
       document.getElementById('emailOverlay').classList.remove('show');
       startGlobalTimer(); renderScreen();
+      checkPreviousProgress(email, true);
     } else {
       errDiv.textContent = "⚠️ Cette adresse email n'est pas enregistrée. Vérifie l'orthographe ou demande à ton professeur de t'ajouter à la liste.";
       input.style.borderColor = 'var(--error)';
@@ -1948,8 +1951,50 @@ function validateEmail() {
 function resetProgression() {
   APP.score = 0; APP.streak = 0; APP.maxStreak = 0; APP.rankIdx = 0; APP.completed = new Set(); APP.results = {}; APP.qs = {};
   APP.predictions = {}; APP.levelStart = {}; APP.badges = new Set(); APP.completedExercises = []; APP.mission = { project:null, name:'', city:'' }; finalShown = false;
+  APP.unlockAll = false;
   APP.level = null; APP.screen = 'welcome';
   console.log('[TRACKING] Progression réinitialisée (nouvel email)');
+}
+
+// ============================================================
+// REPRISE — l'élève a-t-il déjà des résultats enregistrés pour cette app ?
+// Si oui, toutes les missions sont ouvertes pour qu'il reprenne où il veut.
+// ============================================================
+function checkPreviousProgress(email, withMode) {
+  email = (email || '').toLowerCase();
+  if (!email) return;
+  const cbName = '_progCb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+  const cleanup = () => { delete window[cbName]; const s = document.getElementById(cbName); if (s) s.remove(); };
+  const timeout = setTimeout(() => { cleanup(); console.warn('[TRACKING] Reprise : pas de réponse du serveur'); }, 10000);
+  window[cbName] = function(resp) {
+    clearTimeout(timeout); cleanup();
+    const rows = (resp && (resp.leaderboard || resp.data)) || [];
+    const me = rows.find(r => r && (r.email || '').toLowerCase() === email);
+    const nb = me ? Number(me.niveauxCompletes || me.niveaux || 0) : 0;
+    if (me && (nb >= 1 || Number(me.totalPoints || 0) > 0)) { unlockAllLevels(nb); return; }
+    if (withMode) checkPreviousProgress(email, false); // 2e essai, sans le paramètre mode
+    else console.log('[TRACKING] Reprise : aucun résultat précédent trouvé');
+  };
+  let url = `${TRACKING.scriptUrl}?action=leaderboard_app&callback=${cbName}&app=${encodeURIComponent(TRACKING.appName)}`;
+  if (withMode) url += '&mode=last';
+  if (APP.classe) url += `&classe=${encodeURIComponent(APP.classe)}`;
+  const s = document.createElement('script'); s.id = cbName; s.src = url;
+  s.onerror = () => { clearTimeout(timeout); cleanup(); console.warn('[TRACKING] Reprise : erreur de connexion'); };
+  document.body.appendChild(s);
+}
+
+function unlockAllLevels(nb) {
+  if (APP.unlockAll) return;
+  APP.unlockAll = true;
+  console.log('[TRACKING] Reprise : ' + nb + ' mission(s) déjà enregistrée(s) — toutes les missions sont débloquées');
+  renderNav();
+  if (APP.screen === 'welcome' || APP.screen === 'hub') renderScreen();
+  toastQueue.push({
+    icon:'🔓',
+    name:'Missions débloquées',
+    desc:(nb >= 1 ? nb + ' mission' + (nb > 1 ? 's' : '') + ' déjà terminée' + (nb > 1 ? 's' : '') + ' au cours précédent. ' : '') + 'Choisis celle où tu t\'étais arrêté(e).'
+  });
+  showNextToast();
 }
 
 function startGlobalTimer() {
